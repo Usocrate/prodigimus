@@ -1,0 +1,6 @@
+/vendor/
+/.settings/
+/*.lock
+/.buildpath
+
+/.project

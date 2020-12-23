@@ -1,0 +1,47 @@
+$white:    #fff;
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+$black:    #000 !default;
+
+$primary: #8fb569;
+$secondary:#091e05;
+
+$font-family-sans-serif : "Open Sans";
+$headings-font-family: "Oswald";
+$btn-font-family: "Oswald";
+$btn-font-size: 1.2rem;
+
+
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Sigmar+One');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+@import url('https://fonts.googleapis.com/css?family=Oswald');
+@import "../vendor/twbs/bootstrap/scss/bootstrap";
+
+BODY {
+	background-image: url("./images/bg.gif");
+}
+
+BODY > .container-fluid, BODY > .container {
+	background-color: $white;
+	padding: 1rem 1rem 2rem 1rem;
+}
+
+.container-fluid > H1, .container > H1 {
+	padding-top: 0;
+	margin-top: 0;
+}
+
+.navbar-brand {
+	color: $primary !important;
+	font-family: "Sigmar one";
+}
+
+
