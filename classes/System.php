@@ -208,16 +208,24 @@ class System {
 			$pdo->exec ( 'CREATE DATABASE IF NOT EXISTS `' . $this->db_name . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci' );
 			$pdo->exec ( 'USE  `' . $this->db_name . '` ' );
 			$pdo->exec ( "
-					CREATE TABLE `amount`(
-						`id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
-						`title` tinytext NOT NULL,
-						`description` tinytext,
-						`value` decimal(17,2),
-						`currency` char(3) NOT NULL DEFAULT 'EUR',
-						`type` enum('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',
-						`source` tinytext,
-						`source_locator` tinytext,
-						`timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+					CREATE TABLE IF NOT EXISTS `amount`(
+						`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,
+						`title` TINYTEXT NOT NULL,
+						`description` TINYTEXT,
+						`value` DECIMAL(17,2),
+						`currency` CHAR(3) NOT NULL DEFAULT 'EUR',
+						`type` ENUM('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',
+						`source` TINYTEXT,
+						`source_locator` TINYTEXT,
+						`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+						PRIMARY KEY (`id`)
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
+			$pdo->exec ( "
+					CREATE TABLE IF NOT EXISTS `user`(
+						`id` TINYINT(5) unsigned NOT NULL AUTO_INCREMENT,
+						`name` TINYTEXT NOT NULL,
+						`password` TINYTEXT NOT NULL,
+						`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 						PRIMARY KEY (`id`)
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
 			return true;

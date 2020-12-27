@@ -16,7 +16,7 @@ $secondary:#091e05;
 $font-family-sans-serif : "Open Sans";
 $headings-font-family: "Oswald";
 $btn-font-family: "Oswald";
-$btn-font-size: 1.2rem;
+$btn-font-size: 1.1rem;
 
 
 @charset "utf-8";
@@ -42,6 +42,11 @@ BODY > .container-fluid, BODY > .container {
 .navbar-brand {
 	color: $primary !important;
 	font-family: "Sigmar one";
+	
+	SMALL {
+		color:$gray-200;
+		font-family: $font-family-sans-serif;
+	}
 }
 
 
