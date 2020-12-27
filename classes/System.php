@@ -63,10 +63,10 @@ class System {
 		return $this->appli_url;
 	}
 	public function getSkinUrl() {
-		return $this->appli_url . 'skin/';
+		return $this->appli_url . '/skin';
 	}
 	public function getImagesUrl() {
-		return $this->getSkinUrl () . 'images/';
+		return $this->getSkinUrl () . '/images';
 	}
 	public function setDirPath($input) {
 		$this->dir_path = $input;

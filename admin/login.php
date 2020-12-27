@@ -46,7 +46,7 @@ $doc_title = $system->getAppliName();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><?php echo ToolBox::toHtml($system->getAppliName()).' : identification utilisateur'; ?></title>
-    <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>theme.css"></link>
+    <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>/theme.css"></link>
     <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body id="loginDoc" >

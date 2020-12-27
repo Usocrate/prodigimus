@@ -21,7 +21,7 @@ $doc_title = 'Montants';
 <head>
 <title><?php echo ToolBox::toHtml($doc_title) ?></title>
 <meta charset="UTF-8">
-    <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>theme.css"></link>
+    <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
     <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>

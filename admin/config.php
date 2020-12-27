@@ -72,7 +72,7 @@ header ( 'charset=utf-8' );
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="description" content="<?php echo $system->getAppliDescription() ?>" />
 <title><?php echo $system->getAppliName().' : '.$system->getappliDescription() ?></title>
-<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>theme.css"></link>
+<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>/theme.css"></link>
 </head>
 <body>
 <?php //require 'navbar.inc.php'; ?>

@@ -44,7 +44,7 @@ $doc_title = isset ( $amount->id ) ? 'Un montant' : 'Nouveau montant';
 <title><?php echo ToolBox::toHtml($doc_title) ?></title>
 <meta charset="UTF-8">
 <link type="text/css" rel="stylesheet"
-	href="<?php echo $system->getSkinUrl(); ?>theme.css"></link>
+	href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
     <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>
