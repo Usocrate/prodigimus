@@ -34,7 +34,6 @@ $doc_title = 'Montants';
 			foreach($amounts as $a) {
 				echo '<li><a href="amount_edit.php?id='.$a->id.'">'.ToolBox::toHtml($a->title).'</a>: '.$a->value.' <small>'.$a->currency.'</small></li>';
 			}
-			echo '<li><a href="amount_edit.php">Nouveau montant</a></li>';
 			echo '</ol>';
 		?>
 	</div>
