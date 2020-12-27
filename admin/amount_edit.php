@@ -25,7 +25,11 @@ if (isset ( $_POST ['cmd'] )) {
 	switch ($_POST ['cmd']) {
 		case 'register' :
 			$amount->title = $_POST ['title'];
-			$amount->value = $_POST ['value'];
+			$amount->description = $_POST ['description'];
+			$amount->value = floatval($_POST ['value']);
+			$amount->source = $_POST ['source'];
+			$amount->source_url = $_POST ['source_url'];
+			
 			if ($system->put ( $amount )) {
 				$messages [] = 'Montant enregistré (' . $amount->id . ')';
 			}
@@ -69,20 +73,23 @@ $doc_title = isset ( $amount->id ) ? 'Un montant' : 'Nouveau montant';
 			}
 			?>
 			<div class="form-group">
-				<label for="title_i">Titre</label> <input id="title_i" type="text"
-					name="title" value="<?php echo ToolBox::toHtml($amount->title) ?>"
-					size="25" class="form-control" />
+				<label for="title_i">Titre</label>
+				<input id="title_i" type="text" name="title" value="<?php echo ToolBox::toHtml($amount->title) ?>" size="25" class="form-control" />
 			</div>
+			<div class="form-group">
+				<label for="description_i">Description</label>
+				<textarea id="description_i" name="description" class="form-control"><?php echo ToolBox::toHtml($amount->description) ?></textarea>
+			</div>			
 			<div class="form-group">
 				<label for="value_i">Montant</label>
 				<input id="value_i" type="text" name="value" value="<?php echo ToolBox::toHtml($amount->value) ?>"	size="25" class="form-control" />
 			</div>
 			<div class="form-group">
 				<label for="source_i">Source</label>
-				<input id="value_i" type="text" name="source" value="<?php echo ToolBox::toHtml($amount->source) ?>" size="25" class="form-control" />
+				<input id="source_i" type="text" name="source" value="<?php echo ToolBox::toHtml($amount->source) ?>" size="25" class="form-control" />
 			</div>
 			<div class="form-group">
-				<label for="source_i">Url de la source</label>
+				<label for="source_url_i">Url de la source</label>
 				<input id="source_url_i" type="text" name="source_url" value="<?php echo ToolBox::toHtml($amount->source_url) ?>" size="25" class="form-control" />
 			</div>			
 

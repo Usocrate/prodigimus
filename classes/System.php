@@ -157,7 +157,6 @@ class System {
 					'appli_name' => $this->appli_name,
 					'appli_description' => $this->appli_description,
 					'appli_url' => $this->appli_url,
-					'googlemaps_api_key' => $this->googlemaps_api_key,
 					'dir_path' => $this->dir_path
 			);
 			return file_put_contents ( $this->config_file_path, json_encode ( $a ) );
@@ -211,12 +210,12 @@ class System {
 					CREATE TABLE IF NOT EXISTS `amount`(
 						`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,
 						`title` TINYTEXT NOT NULL,
-						`description` TINYTEXT,
+						`description` TEXT,
 						`value` DECIMAL(17,2),
 						`currency` CHAR(3) NOT NULL DEFAULT 'EUR',
 						`type` ENUM('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',
 						`source` TINYTEXT,
-						`source_locator` TINYTEXT,
+						`source_url` TINYTEXT,
 						`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 						PRIMARY KEY (`id`)
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
@@ -286,8 +285,17 @@ class System {
 				if (isset ( $o->title )) {
 					$settings [] = 'title=:title';
 				}
+				if (isset ( $o->description )) {
+					$settings [] = 'description=:description';
+				}
 				if (isset ( $o->value )) {
 					$settings [] = 'value=:value';
+				}
+				if (isset ( $o->source )) {
+					$settings [] = 'source=:source';
+				}
+				if (isset ( $o->source )) {
+					$settings [] = 'source_url=:source_url';
 				}
 
 				$sql = $new ? 'INSERT INTO' : 'UPDATE';
@@ -302,10 +310,19 @@ class System {
 				if (isset ( $o->title )) {
 					$statement->bindValue ( ':title', $o->title, PDO::PARAM_STR );
 				}
+				if (isset ( $o->description )) {
+					$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
+				}
 				if (isset ( $o->value )) {
 					$statement->bindValue ( ':value', $o->value, PDO::PARAM_STR );
 				}
-
+				if (isset ( $o->source )) {
+					$statement->bindValue ( ':source', $o->source, PDO::PARAM_STR );
+				}
+				if (isset ( $o->source_url )) {
+					$statement->bindValue ( ':source_url', $o->source_url, PDO::PARAM_STR );
+				}
+				
 				if (! $new) {
 					$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
 				}
@@ -336,6 +353,7 @@ class System {
 			$output = new Amount ();
 			$output->id = $data ['id'];
 			$output->title = $data ['title'];
+			$output->description = $data ['description'];
 			$output->value = $data ['value'];
 			$output->source = $data ['source'];
 			$output->source_url = $data ['source_url'];

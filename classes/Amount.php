@@ -7,6 +7,7 @@
 class Amount {
 	public $id;
 	public $title;
+	public $description;
 	public $value;
 	public $currency;
 	public $source;

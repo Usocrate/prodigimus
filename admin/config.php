@@ -14,7 +14,7 @@ if ($system->configFileExists ()) {
 	 * On propose des valeurs par défaut.
 	 */
 	$system->setDbName ( 'prodigimus' );
-	$system->setDbUser ( 'root' );
+	$system->setDbUser ( '' );
 	$system->setDbHost ( 'localhost' );
 	
 	$system->setAppliName ( 'Prodigimus' );
