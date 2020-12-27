@@ -30,11 +30,15 @@ $doc_title = 'Montants';
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 		<?php
 			$amounts = $system->getAmounts();
-			echo '<ol>';
-			foreach($amounts as $a) {
-				echo '<li><a href="amount_edit.php?id='.$a->id.'">'.ToolBox::toHtml($a->title).'</a>: '.$a->value.' <small>'.$a->currency.'</small></li>';
+			if (count($amounts)>0) {
+				echo '<ol>';
+				foreach($amounts as $a) {
+					echo '<li><a href="amount_edit.php?id='.$a->id.'">'.ToolBox::toHtml($a->title).'</a>: '.$a->value.' <small>'.$a->currency.'</small></li>';
+				}
+				echo '</ol>';
+			} else {
+				echo '<div class="alert alert-info" role="alert">Aucun montant enregistré pour le moment.</div>';
 			}
-			echo '</ol>';
 		?>
 	</div>
 </body>
