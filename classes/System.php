@@ -376,6 +376,7 @@ class System {
 			$a = new Amount ();
 			$a->id = $r ['id'];
 			$a->title = $r ['title'];
+			$a->description = $r ['description'];
 			$a->value = $r ['value'];
 			$a->currency = $r ['currency'];
 			$a->type = $r ['type'];

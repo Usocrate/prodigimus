@@ -8,7 +8,7 @@
     <ul class="navbar-nav flex-lg-fill">
 		<li class="nav-item"><a class="nav-link" href="index.php">Montants</a></li>
 		<li class="nav-item"><a class="nav-link" href="amount_edit.php">Nouveau montant</a></li>
-		<li class="nav-item"><a class="nav-link" href="database.php">Base de données</a></li>
+		<li class="nav-item"><a class="nav-link" href="config.php">Configuration</a></li>
     </ul>
   </div>
 </nav>

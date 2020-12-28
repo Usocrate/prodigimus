@@ -78,7 +78,7 @@ $doc_title = isset ( $amount->id ) ? 'Un montant' : 'Nouveau montant';
 			</div>
 			<div class="form-group">
 				<label for="description_i">Description</label>
-				<textarea id="description_i" name="description" class="form-control"><?php echo ToolBox::toHtml($amount->description) ?></textarea>
+				<textarea id="description_i" name="description" class="form-control"><?php echo $amount->description ?></textarea>
 			</div>			
 			<div class="form-group">
 				<label for="value_i">Montant</label>

@@ -75,7 +75,7 @@ header ( 'charset=utf-8' );
 <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>/theme.css"></link>
 </head>
 <body>
-<?php //require 'navbar.inc.php'; ?>
+<?php require 'navbar.inc.php'; ?>
 <div class="container-fluid">
 	<h1>Configuration</h1>
 	<?php

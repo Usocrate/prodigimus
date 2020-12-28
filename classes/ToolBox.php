@@ -6,7 +6,7 @@
  */
 class ToolBox {
 	/**
-	 * @version 13/02/2017
+	 * @version 02/2017
 	 */
 	public static function getHtmlPagesNav($page_index=1, $pages_nb, $param, $page_index_param_name='page_index')
 	{
@@ -71,7 +71,7 @@ class ToolBox {
 	 *
 	 * @param $array
 	 * @return string
-	 * @version 2009-04-17
+	 * @version 04/2009
 	 */
 	public static function arrayToUrlParam($array)
 	{
@@ -87,7 +87,7 @@ class ToolBox {
 	/**
 	 * Convertit tous les caractères de balisage d'une chaîne en entités Xml ("&amp;", "&lt;", "&gt;", "&apos;" et "&quot;")
 	 *
-	 * @since 16/09/2006
+	 * @since 09/2006
 	 */
 	public static function xmlEntities($input)
 	{
@@ -96,16 +96,13 @@ class ToolBox {
 		return str_replace($search, $replace, $input);
 	}
 	/**
-	 * @since 16/06/2012
+	 * @version 12/2020
+	 * @since 06/2012
 	 */	
 	public static function toHtml($input)
 	{
-		return htmlentities($input, ENT_QUOTES, 'UTF-8');
-		
-		/**
-		* A partir de php 5.4
-		*/
-		//return htmlentities($input, ENT_HTML5);
+		$input = htmlentities($input, ENT_HTML5);
+		return nl2br($input);
 	}	
 	public static function sans_accent($chaine) {
 		$accent  ="ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ";
@@ -128,7 +125,7 @@ class ToolBox {
 	/**
 	 * Formatte les données postées via formulaire pour les enregistrer en base.
 	 *
-	 * @version 20/01/2011
+	 * @version 01/2011
 	 */
 	public static function formatUserPost($data)
 	{
@@ -142,7 +139,7 @@ class ToolBox {
 	}
 	/**
 	 * Ajoute un répertoire dans la liste des répertoires utilisés dans la recherche de fichiers à inclure.
-	 * @since 10/02/2007
+	 * @since 02/2007
 	 */
 	public static function addIncludePath($input)
 	{
