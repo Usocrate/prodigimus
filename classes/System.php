@@ -272,10 +272,9 @@ class System {
 	 * Enregistre les données d'un objet dans la base de données.
 	 *
 	 * @since 12/2020
-	 * @param Object $o
 	 * @return boolean
 	 */
-	public function put(Object $o) {
+	public function put($o) {
 		switch (get_class ( $o )) {
 			case 'Amount' :
 
