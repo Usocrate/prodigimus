@@ -54,10 +54,21 @@ if (isset ( $_POST ['task_id'] )) {
 			if (isset ( $_POST ['dir_path'] )) {
 				$system->setDirPath ( $_POST ['dir_path'] );
 			}
+			if (isset ( $_POST ['appli_theme_color'] )) {
+				$system->setAppliThemeColor ( $_POST ['appli_theme_color'] );
+			}
+			if (isset ( $_POST ['appli_background_color'] )) {
+				$system->setAppliBackgroundColor ( $_POST ['appli_background_color'] );
+			}
 			if ($system->saveConfigFile ()) {
 				$fb->addSuccessMessage ( 'Configuration enregistrée.' );
 			} else {
 				$fb->addDangerMessage ( 'Echec de l\'enregistrement de la configuration.' );
+			}
+			if ($system->saveManifestFile ()) {
+				$fb->addSuccessMessage ( 'Manifeste enregistré.' );
+			} else {
+				$fb->addDangerMessage ( 'Echec de l\'enregistrement du manifeste.' );
 			}
 			break;
 	}
@@ -103,18 +114,19 @@ header ( 'charset=utf-8' );
 						<label for="db_host_i">Hôte</label><input id="db_host_i" type="text" name="db_host" class="form-control" value="<?php echo ToolBox::toHtml($system->getDbHost()); ?>" />
 					</div>
 				</fieldset>
-			</div>
-			<div class="col-md-6">
 				<fieldset>
 					<legend>Chemin d'accès aux fichiers</legend>
 					<div class="form-group">
 						<label for="dir_path_i">Répertoire où l'application est installée</label><input id="dir_path_i" type="text" name="dir_path" class="form-control" value="<?php echo ToolBox::toHtml($system->getDirPath()); ?>" />
 					</div>
 				</fieldset>
+				
+			</div>
+			<div class="col-md-6">
 				<fieldset>
 					<legend>Projet</legend>
 					<div class="form-group">
-						<label for="appli_url_i">Url</label><input id="appli_url_i" id="appli_url_i" type="url" name="appli_url" class="form-control" value="<?php echo ToolBox::toHtml($system->getAppliUrl()); ?>" />
+						<label for="appli_url_i">Url</label><input id="appli_url_i" type="url" name="appli_url" class="form-control" value="<?php echo ToolBox::toHtml($system->getAppliUrl()); ?>" />
 					</div>
 					<div class="form-group">
 						<label for="appli_name_i">Nom</label><input id="appli_name_i" type="text" name="appli_name" class="form-control" value="<?php echo ToolBox::toHtml($system->getAppliName()); ?>" />
@@ -123,6 +135,15 @@ header ( 'charset=utf-8' );
 						<label for="appli_description_i">Description</label><input id="appli_description_i" type="text" name="appli_description" class="form-control" value="<?php echo ToolBox::toHtml($system->getAppliDescription()); ?>" />
 					</div>
 				</fieldset>
+				<fieldset>
+					<legend>Identité graphique</legend>
+					<div class="form-group">
+						<label for="appli_theme_color_i">Couleur principale du thème</label><input id="appli_theme_color_i" type="text" name="appli_theme_color" class="form-control" value="<?php echo $system->getAppliThemeColor(); ?>" />
+					</div>
+					<div class="form-group">
+						<label for="appli_background_color_i">Couleur complémentaire</label><input id="appli_background_color_i" type="text" name="appli_background_color" class="form-control" value="<?php echo $system->getAppliBackgroundColor(); ?>" />
+					</div>
+				</fieldset>				
 			</div>
 			<button name="task_id" type="submit" value="save" class="btn btn-primary">Enregistrer</button>
 		</div>

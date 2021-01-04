@@ -9,11 +9,13 @@ class System {
 	private $db_name;
 	private $db_user;
 	private $db_password;
+	private $pdo;
 	private $appli_name;
 	private $appli_description;
 	private $appli_url;
+	private $appli_theme_color;
+	private $appli_background_color;
 	private $dir_path;
-	private $pdo;
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
@@ -62,6 +64,18 @@ class System {
 	public function getAppliUrl() {
 		return $this->appli_url;
 	}
+	public function setAppliThemeColor($input) {
+		$this->appli_theme_color = $input;
+	}
+	public function getAppliThemeColor() {
+		return $this->appli_theme_color;
+	}
+	public function setAppliBackgroundColor($input) {
+		$this->appli_background_color = $input;
+	}
+	public function getAppliBackgroundColor() {
+		return $this->appli_background_color;
+	}
 	public function getSkinUrl() {
 		return $this->appli_url . '/skin';
 	}
@@ -90,11 +104,27 @@ class System {
 	}
 	/**
 	 *
+	 * @since 01/2021
+	 * @return string
+	 */
+	public function getManifestPath() {
+		return $this->dir_path . DIRECTORY_SEPARATOR . 'skin' . DIRECTORY_SEPARATOR . 'manifest.json';
+	}
+	/**
+	 *
 	 * @since 10/2016
 	 * @return boolean
 	 */
 	public function configFileExists() {
 		return file_exists ( $this->config_file_path );
+	}
+	/**
+	 *
+	 * @since 01/2021
+	 * @return boolean
+	 */
+	public function ManifestFileExists() {
+		return file_exists ( $this->getManifestPath () );
 	}
 	/**
 	 *
@@ -129,6 +159,12 @@ class System {
 						case 'appli_url' :
 							$this->appli_url = $value;
 							break;
+						case 'appli_theme_color' :
+							$this->appli_theme_color = $value;
+							break;
+						case 'appli_background_color' :
+							$this->appli_background_color = $value;
+							break;
 						case 'dir_path' :
 							$this->dir_path = $value;
 							break;
@@ -157,9 +193,45 @@ class System {
 					'appli_name' => $this->appli_name,
 					'appli_description' => $this->appli_description,
 					'appli_url' => $this->appli_url,
+					'appli_theme_color' => $this->appli_theme_color,
+					'appli_background_color' => $this->appli_background_color,
 					'dir_path' => $this->dir_path
 			);
 			return file_put_contents ( $this->config_file_path, json_encode ( $a ) );
+		} catch ( Exception $e ) {
+			$this->reportException ( __METHOD__, $e );
+			return false;
+		}
+	}
+	/**
+	 *
+	 * @since 01/2021
+	 * @return number|boolean
+	 */
+	public function saveManifestFile() {
+		try {
+			$icons = array ();
+			$sizes = array (
+					'192x192',
+					'256x256',
+					'512x512'
+			);
+			foreach ( $sizes as $s ) {
+				$i = new Icon ();
+				$i->src = $this->getImagesUrl () . '/android-chrome-' . $s . '.png';
+				$i->sizes = $s;
+				$i->type = 'image/png';
+				$icons [] = clone $i;
+			}
+			$a = array (
+					"name" => $this->appli_name,
+					"short_name" => $this->appli_name,
+					"icons" => $icons,
+					"theme_color" => $this->appli_theme_color,
+					"background_color" => $this->appli_background_color,
+					"display" => "standalone"
+			);
+			return file_put_contents ( $this->getManifestPath(), json_encode ( $a ) );
 		} catch ( Exception $e ) {
 			$this->reportException ( __METHOD__, $e );
 			return false;
@@ -243,11 +315,10 @@ class System {
 	}
 	public function getHtmlHeadTagsForFavicon() {
 		$output = array ();
-		$output [] = '<link rel="icon" type="image/png" sizes="32x32" href="' . $this->getSkinUrl () . 'images/favicon-32x32.png">';
-		$output [] = '<link rel="icon" type="image/png" sizes="16x16" href="' . $this->getSkinUrl () . 'images/favicon-16x16.png">';
-		$output [] = '<link rel="manifest" href="' . $this->getSkinUrl () . 'manifest.json">';
+		$output [] = '<link rel="icon" type="image/png" sizes="32x32" href="' . $this->getSkinUrl () . '/images/favicon-32x32.png">';
+		$output [] = '<link rel="icon" type="image/png" sizes="16x16" href="' . $this->getSkinUrl () . '/images/favicon-16x16.png">';
+		$output [] = '<link rel="manifest" href="' . $this->getSkinUrl () . '/manifest.json">';
 		$output [] = '<meta name="application-name" content="' . ToolBox::toHtml ( $this->getAppliName () ) . '">';
-		$output [] = '<meta name="theme-color" content="#da8055">';
 		return $output;
 	}
 	public function writeHtmlHeadTagsForFavicon() {
@@ -321,7 +392,7 @@ class System {
 				if (isset ( $o->source_url )) {
 					$statement->bindValue ( ':source_url', $o->source_url, PDO::PARAM_STR );
 				}
-				
+
 				if (! $new) {
 					$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
 				}
@@ -361,6 +432,7 @@ class System {
 		return null;
 	}
 	/**
+	 *
 	 * @since 12/2020
 	 * @return Amount[]
 	 */
@@ -370,8 +442,7 @@ class System {
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
-		foreach ( $rows as $r ) 
-		{
+		foreach ( $rows as $r ) {
 			$a = new Amount ();
 			$a->id = $r ['id'];
 			$a->title = $r ['title'];
@@ -381,8 +452,8 @@ class System {
 			$a->type = $r ['type'];
 			$a->source = $r ['source'];
 			$a->source_url = $r ['source_url'];
-			$output[] = clone $a;
-			unset($a);
+			$output [] = clone $a;
+			unset ( $a );
 		}
 		return $output;
 	}
