@@ -112,6 +112,14 @@ class System {
 	}
 	/**
 	 *
+	 * @since 01/2021
+	 * @return string
+	 */
+	public function getManifestUrl() {
+		return $this->getSkinUrl().'/manifest.json';
+	}
+	/**
+	 *
 	 * @since 10/2016
 	 * @return boolean
 	 */
@@ -123,7 +131,7 @@ class System {
 	 * @since 01/2021
 	 * @return boolean
 	 */
-	public function ManifestFileExists() {
+	public function manifestFileExists() {
 		return file_exists ( $this->getManifestPath () );
 	}
 	/**

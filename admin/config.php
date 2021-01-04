@@ -66,7 +66,7 @@ if (isset ( $_POST ['task_id'] )) {
 				$fb->addDangerMessage ( 'Echec de l\'enregistrement de la configuration.' );
 			}
 			if ($system->saveManifestFile ()) {
-				$fb->addSuccessMessage ( 'Manifeste enregistré.' );
+				$fb->addSuccessMessage ( 'Manifeste accessible ('.$system->getManifestUrl().').' );
 			} else {
 				$fb->addDangerMessage ( 'Echec de l\'enregistrement du manifeste.' );
 			}
@@ -138,7 +138,7 @@ header ( 'charset=utf-8' );
 				<fieldset>
 					<legend>Identité graphique</legend>
 					<div class="form-group">
-						<label for="appli_theme_color_i">Couleur principale du thème</label><input id="appli_theme_color_i" type="text" name="appli_theme_color" class="form-control" value="<?php echo $system->getAppliThemeColor(); ?>" />
+						<label for="appli_theme_color_i">Couleur principale</label><input id="appli_theme_color_i" type="text" name="appli_theme_color" class="form-control" value="<?php echo $system->getAppliThemeColor(); ?>" />
 					</div>
 					<div class="form-group">
 						<label for="appli_background_color_i">Couleur complémentaire</label><input id="appli_background_color_i" type="text" name="appli_background_color" class="form-control" value="<?php echo $system->getAppliBackgroundColor(); ?>" />
