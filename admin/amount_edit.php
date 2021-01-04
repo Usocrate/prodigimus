@@ -45,11 +45,11 @@ $doc_title = isset ( $amount->id ) ? 'Un montant' : 'Nouveau montant';
 <!doctype html>
 <html lang="fr">
 <head>
-<title><?php echo ToolBox::toHtml($doc_title) ?></title>
-<meta charset="UTF-8">
-<link type="text/css" rel="stylesheet"
-	href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
-    <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
+	<title><?php echo ToolBox::toHtml($doc_title) ?></title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
+	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>
 	<?php include 'navbar.inc.php'; ?>
@@ -92,12 +92,11 @@ $doc_title = isset ( $amount->id ) ? 'Un montant' : 'Nouveau montant';
 				<label for="source_url_i">Url de la source</label>
 				<input id="source_url_i" type="text" name="source_url" value="<?php echo ToolBox::toHtml($amount->source_url) ?>" size="25" class="form-control" />
 			</div>			
-
-			<button name="cmd" type="submit" value="register"
-				class="btn btn-primary">Enregistrer</button>
-			<button name="cmd" type="submit" value="cancel"
-				class="btn btn-secondary">Abandonner</button>
+			<button name="cmd" type="submit" value="register" class="btn btn-primary">Enregistrer</button>
+			<button name="cmd" type="submit" value="cancel"	class="btn btn-secondary">Abandonner</button>
 		</form>
 	</div>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

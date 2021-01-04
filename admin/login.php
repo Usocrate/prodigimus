@@ -44,7 +44,7 @@ $doc_title = $system->getAppliName();
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><?php echo ToolBox::toHtml($system->getAppliName()).' : identification utilisateur'; ?></title>
     <link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl() ?>/theme.css"></link>
     <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
@@ -70,6 +70,8 @@ $doc_title = $system->getAppliName();
 		<button name="login_submission" type="submit" value="1" class="btn btn-primary">Pousser</button>
 	</form>
 </div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script type="text/javascript" src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 	$(document).ready(function() {
 		$('#user_name_i').focus();
