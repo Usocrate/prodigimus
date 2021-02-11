@@ -25,10 +25,10 @@ if ($system->configFileExists ()) {
 	$system->setDirPath ( realpath ( $path ) );
 }
 
-if (isset ( $_POST ['task_id'] )) {
+if (isset ( $_POST ['cmd'] )) {
 	$fb = new UserFeedBack ();
 	ToolBox::formatUserPost ( $_POST );
-	switch ($_POST ['task_id']) {
+	switch ($_POST ['cmd']) {
 		case 'save' :
 			if (isset ( $_POST ['db_host'] )) {
 				$system->setDbHost ( $_POST ['db_host'] );
@@ -145,7 +145,7 @@ header ( 'charset=utf-8' );
 					</div>
 				</fieldset>				
 			</div>
-			<button name="task_id" type="submit" value="save" class="btn btn-primary">Enregistrer</button>
+			<button name="cmd" type="submit" value="save" class="btn btn-primary">Enregistrer</button>
 		</div>
 	</form>
 </div>

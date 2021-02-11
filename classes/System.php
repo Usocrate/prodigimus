@@ -16,6 +16,7 @@ class System {
 	private $appli_theme_color;
 	private $appli_background_color;
 	private $dir_path;
+	
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
@@ -107,6 +108,39 @@ class System {
 	 * @since 01/2021
 	 * @return string
 	 */
+	public function getUploadDirectoryPath() {
+		try {
+			$path = $this->getDataDirPath () . DIRECTORY_SEPARATOR . 'upload';
+			if (! is_dir ( $path )) {
+				mkdir ( $path, 0770 );
+			}
+			return $path;
+		} catch ( Exception $e ) {
+			$this->reportException ( __METHOD__, $e );
+		}
+	}
+	public function getUploadMaxFileSize() {
+		try {
+			$input = strtolower ( ini_get ( 'upload_max_filesize' ) );
+			switch (substr ( $input, - 1 )) {
+				case 'm' :
+					return ( int ) $input * 1048576;
+				case 'k' :
+					return ( int ) $input * 1024;
+				case 'g' :
+					return ( int ) $input * 1073741824;
+				default :
+					throw new Exception ( 'La taille maximum des fichiers pouvant être téléchargés ne peut être calculée' );
+			}
+		} catch ( Exception $e ) {
+			$this->reportException ( __METHOD__, $e );
+		}
+	}
+	/**
+	 *
+	 * @since 01/2021
+	 * @return string
+	 */
 	public function getManifestPath() {
 		return $this->dir_path . DIRECTORY_SEPARATOR . 'skin' . DIRECTORY_SEPARATOR . 'manifest.json';
 	}
@@ -116,7 +150,7 @@ class System {
 	 * @return string
 	 */
 	public function getManifestUrl() {
-		return $this->getSkinUrl().'/manifest.json';
+		return $this->getSkinUrl () . '/manifest.json';
 	}
 	/**
 	 *
@@ -239,7 +273,7 @@ class System {
 					"background_color" => $this->appli_background_color,
 					"display" => "standalone"
 			);
-			return file_put_contents ( $this->getManifestPath(), json_encode ( $a ) );
+			return file_put_contents ( $this->getManifestPath (), json_encode ( $a ) );
 		} catch ( Exception $e ) {
 			$this->reportException ( __METHOD__, $e );
 			return false;
@@ -284,31 +318,22 @@ class System {
 		try {
 			$pdo = new PDO ( 'mysql:host=' . $this->db_host, $this->db_user, $this->db_password );
 			$pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+
+			$pdo->beginTransaction ();
+
 			$pdo->exec ( 'CREATE DATABASE IF NOT EXISTS `' . $this->db_name . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci' );
 			$pdo->exec ( 'USE  `' . $this->db_name . '` ' );
-			$pdo->exec ( "
-					CREATE TABLE IF NOT EXISTS `amount`(
-						`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,
-						`title` TINYTEXT NOT NULL,
-						`description` TEXT,
-						`value` DECIMAL(17,2),
-						`currency` CHAR(3) NOT NULL DEFAULT 'EUR',
-						`type` ENUM('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',
-						`source` TINYTEXT,
-						`source_url` TINYTEXT,
-						`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-						PRIMARY KEY (`id`)
-					) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
-			$pdo->exec ( "
-					CREATE TABLE IF NOT EXISTS `user`(
-						`id` TINYINT(5) unsigned NOT NULL AUTO_INCREMENT,
-						`name` TINYTEXT NOT NULL,
-						`password` TINYTEXT NOT NULL,
-						`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-						PRIMARY KEY (`id`)
-					) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
-			return true;
+
+			$pdo->exec ( "CREATE TABLE IF NOT EXISTS `amount` (`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,`title` TINYTEXT NOT NULL,`description` TEXT,`value` DECIMAL(17,2),`currency` CHAR(3) NOT NULL DEFAULT 'EUR',`type` ENUM('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',`source` TINYTEXT,`source_url` TINYTEXT,`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
+			$pdo->exec ( "CREATE TABLE IF NOT EXISTS `account` (`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,`description` TINYTEXT,`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
+			$pdo->exec ( "CREATE TABLE IF NOT EXISTS `accounting_entry` (`id` SMALLINT(5) unsigned NOT NULL AUTO_INCREMENT,`account_id` SMALLINT(5) unsigned NOT NULL,`date` DATE NOT NULL,`value_date` DATE NOT NULL,`description` TINYTEXT NOT NULL,`type` ENUM('spending', 'earning', 'giving', 'fighting', 'losing', 'illin''') NOT NULL DEFAULT 'spending',`amount` DECIMAL(14,2) NOT NULL,`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`),KEY (`account_id`),KEY (`type`),CONSTRAINT `ae_fk_1` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8;" );
+			// $pdo->exec ("CREATE TABLE IF NOT EXISTS `user` (`id` TINYINT(5) unsigned NOT NULL AUTO_INCREMENT,`name` TINYTEXT NOT NULL,`password` TINYTEXT NOT NULL,`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+			return $pdo->commit ();
 		} catch ( PDOException $e ) {
+			if ($pdo->inTransaction ()) {
+				$pdo->rollBack ();
+			}
 			$this->reportException ( $e );
 			return false;
 		}
@@ -350,70 +375,256 @@ class System {
 	/**
 	 * Enregistre les données d'un objet dans la base de données.
 	 *
+	 * @version 01/2021
 	 * @since 12/2020
 	 * @return boolean
 	 */
 	public function put($o) {
-		switch (get_class ( $o )) {
-			case 'Amount' :
-
-				$new = empty ( $o->id );
-
-				$settings = array ();
-				if (isset ( $o->title )) {
-					$settings [] = 'title=:title';
-				}
-				if (isset ( $o->description )) {
-					$settings [] = 'description=:description';
-				}
-				if (isset ( $o->value )) {
-					$settings [] = 'value=:value';
-				}
-				if (isset ( $o->source )) {
-					$settings [] = 'source=:source';
-				}
-				if (isset ( $o->source )) {
-					$settings [] = 'source_url=:source_url';
-				}
-
-				$sql = $new ? 'INSERT INTO' : 'UPDATE';
-				$sql .= ' amount SET ';
-				$sql .= implode ( ', ', $settings );
-				if (! $new) {
-					$sql .= ' WHERE id=:id';
-				}
-
-				$statement = $this->getPdo ()->prepare ( $sql );
-
-				if (isset ( $o->title )) {
-					$statement->bindValue ( ':title', $o->title, PDO::PARAM_STR );
-				}
-				if (isset ( $o->description )) {
-					$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
-				}
-				if (isset ( $o->value )) {
-					$statement->bindValue ( ':value', $o->value, PDO::PARAM_STR );
-				}
-				if (isset ( $o->source )) {
-					$statement->bindValue ( ':source', $o->source, PDO::PARAM_STR );
-				}
-				if (isset ( $o->source_url )) {
-					$statement->bindValue ( ':source_url', $o->source_url, PDO::PARAM_STR );
-				}
-
-				if (! $new) {
-					$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
-				}
-
-				$result = $statement->execute ();
-
-				if ($result && $new) {
-					$o->id = $this->getPdo ()->lastInsertId ();
-				}
-
-				return $result;
+		try {
+			switch (get_class ( $o )) {
+				
+				case 'Account' :
+					
+					$new = empty ( $o->id );
+					
+					$settings = array ();
+					
+					if (isset ( $o->description )) {
+						$settings [] = 'description=:description';
+					}
+					
+					if (isset ( $o->timestamp )) {
+						$settings [] = 'timestamp=:timestamp';
+					}
+					
+					$sql = $new ? 'INSERT INTO' : 'UPDATE';
+					$sql .= ' account SET ';
+					$sql .= implode ( ', ', $settings );
+					if (! $new) {
+						$sql .= ' WHERE id=:id';
+					}
+					
+					$statement = $this->getPdo ()->prepare ( $sql );
+					
+					if (isset ( $o->description )) {
+						$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
+					}
+					
+					if (isset ( $o->timestamp )) {
+						$statement->bindValue ( ':timestamp', $o->timestamp, PDO::PARAM_STR );
+					}
+					
+					if (! $new) {
+						$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
+					}
+					
+					$result = $statement->execute ();
+					
+					if ($result && $new) {
+						$o->id = $this->getPdo ()->lastInsertId ();
+					}
+					
+					return $result;
+					
+				case 'AccountingEntry' :
+					
+					//var_dump($o);
+					
+					$new = empty ( $o->id );
+					
+					$settings = array ();
+					if (isset ( $o->account_id )) {
+						$settings [] = 'account_id=:account_id';
+					}
+					if (isset ( $o->date )) {
+						$settings [] = 'date=:date';
+					}
+					if (isset ( $o->value_date )) {
+						$settings [] = 'value_date=:value_date';
+					}
+					if (isset ( $o->description )) {
+						$settings [] = 'description=:description';
+					}
+					if (isset ( $o->amount )) {
+						$settings [] = 'amount=:amount';
+					}
+					
+					$sql = $new ? 'INSERT INTO' : 'UPDATE';
+					$sql .= ' accounting_entry SET ';
+					$sql .= implode ( ', ', $settings );
+					if (! $new) {
+						$sql .= ' WHERE id=:id';
+					}
+					
+					$statement = $this->getPdo ()->prepare ( $sql );
+					
+					if (isset ( $o->account_id )) {
+						$statement->bindValue ( ':account_id', $o->account_id, PDO::PARAM_STR );
+					}
+					if (isset ( $o->date )) {
+						$statement->bindValue ( ':date', $o->date->format('Y/m/d'), PDO::PARAM_STR );
+					}
+					if (isset ( $o->value_date )) {
+						$statement->bindValue ( ':value_date', $o->value_date->format('Y/m/d'), PDO::PARAM_STR );
+					}
+					if (isset ( $o->description )) {
+						$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
+					}
+					if (isset ( $o->amount )) {
+						$statement->bindValue ( ':amount', $o->amount, PDO::PARAM_STR );
+					}
+					
+					if (! $new) {
+						$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
+					}
+					
+					$result = $statement->execute ();
+					
+					if ($result && $new) {
+						$o->id = $this->getPdo ()->lastInsertId ();
+					}
+					
+					return $result;
+					
+				case 'Amount' :
+					
+					$new = empty ( $o->id );
+					
+					$settings = array ();
+					if (isset ( $o->title )) {
+						$settings [] = 'title=:title';
+					}
+					if (isset ( $o->description )) {
+						$settings [] = 'description=:description';
+					}
+					if (isset ( $o->value )) {
+						$settings [] = 'value=:value';
+					}
+					if (isset ( $o->source )) {
+						$settings [] = 'source=:source';
+					}
+					if (isset ( $o->source_url )) {
+						$settings [] = 'source_url=:source_url';
+					}
+					
+					$sql = $new ? 'INSERT INTO' : 'UPDATE';
+					$sql .= ' amount SET ';
+					$sql .= implode ( ', ', $settings );
+					if (! $new) {
+						$sql .= ' WHERE id=:id';
+					}
+					
+					$statement = $this->getPdo ()->prepare ( $sql );
+					
+					if (isset ( $o->title )) {
+						$statement->bindValue ( ':title', $o->title, PDO::PARAM_STR );
+					}
+					if (isset ( $o->description )) {
+						$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
+					}
+					if (isset ( $o->value )) {
+						$statement->bindValue ( ':value', $o->value, PDO::PARAM_STR );
+					}
+					if (isset ( $o->source )) {
+						$statement->bindValue ( ':source', $o->source, PDO::PARAM_STR );
+					}
+					if (isset ( $o->source_url )) {
+						$statement->bindValue ( ':source_url', $o->source_url, PDO::PARAM_STR );
+					}
+					
+					if (! $new) {
+						$statement->bindValue ( ':id', $o->id, PDO::PARAM_INT );
+					}
+					
+					$result = $statement->execute ();
+					
+					if ($result && $new) {
+						$o->id = $this->getPdo ()->lastInsertId ();
+					}
+					
+					return $result;
+			}
+			return false;
+		} catch (Exception $e) {
+			var_dump($o);
+			$this->reportException($e);
 		}
-		return false;
+
+	}
+	/**
+	 *
+	 * @since 01/2021
+	 * @return Account|NULL
+	 */
+	public function getAccount($id) {
+		$sql = 'SELECT * FROM account WHERE id=:id';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':id', $id, PDO::PARAM_INT );
+		$statement->execute ();
+		$data = $statement->fetch ( PDO::FETCH_ASSOC );
+		if ($data) {
+			$output = new Account ();
+			$output->id = $data ['id'];
+			$output->description = $data ['description'];
+			$output->timestamp = $data ['timestamp'];
+			return $output;
+		}
+		return null;
+	}
+	/**
+	 *
+	 * @since 01/2021
+	 * @return Account[]
+	 */
+	public function getAccounts() {
+		$sql = 'SELECT * FROM account ORDER BY timestamp DESC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->execute ();
+		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		$output = array ();
+		foreach ( $rows as $r ) {
+			$a = new Account ();
+			$a->id = $r ['id'];
+			$a->description = $r ['description'];
+			$a->timestamp = $r ['timestamp'];
+			$output [] = clone $a;
+			unset ( $a );
+		}
+		return $output;
+	}
+	/**
+	 * @since 01/2021
+	 * @param Account $account
+	 * @return AccountingEntry[]
+	 */
+	public function getAccountingEntries(Account $account) {
+		$sql = 'SELECT * FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':account_id', $account->getId(), PDO::PARAM_INT );
+		$statement->execute ();
+		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		$output = array ();
+		foreach ( $rows as $r ) {
+			$e = new AccountingEntry ();
+			$e->setId ( $r ['id'] );
+			$e->setDate ( $r ['date'] );
+			$e->setValueDate ( $r ['value_date'] );
+			$e->setDescription ( $r ['description'] );
+			$e->setAmount ( $r ['amount'] );
+			$e->setType($r ['type']);
+			$e->setTimestamp($r ['timestamp']);
+			$output [] = clone $e;
+			unset ( $e );
+		}
+		return $output;
+	}
+	public function getLastAccountingEntryDate(Account $account) {
+		$sql = 'SELECT date FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC LIMIT 1';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':account_id', $account->getId(), PDO::PARAM_INT );
+		$statement->execute ();
+		$data = $statement->fetchColumn();
+		return empty($data) ? null : new DateTime($data);
 	}
 	/**
 	 *

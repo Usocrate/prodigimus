@@ -13,7 +13,7 @@ if (file_exists ( '../config/host.json' )) {
 	exit ();
 }
 
-$doc_title = 'Montants';
+$doc_title = 'Comptes';
 
 ?>
 <!doctype html>
@@ -30,22 +30,17 @@ $doc_title = 'Montants';
 	<div class="container-fluid">
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 		<?php
-		$amounts = $system->getAmounts ();
+		$accounts = $system->getAccounts ();
 		echo '<div class="list-group">';
-		foreach ( $amounts as $a ) {
-			echo '<a href="amount_edit.php?id=' . $a->id . '" class="list-group-item list-group-item-action">';
-			echo '<div class="d-flex w-100 justify-content-between">';
-			echo '<h5 class="mb-1">'.ToolBox::toHtml($a->title).'</h5>';
-			echo '<small>'.ToolBox::toHtml($a->value).' '.ToolBox::toHtml($a->currency).'</small>';
+		foreach ( $accounts as $a ) {
+			echo '<div>';
+			echo '<a href="account.php?id=' . $a->id . '" class="list-group-item list-group-item-action">'.ToolBox::toHtml($a->description).'</a>';
+			echo '<a href="account_edit.php?id=' . $a->id . '" >modifier</a>';
 			echo '</div>';
-			echo '<p class="mb-1">'.ToolBox::toHtml($a->description).'</p>';
-			//echo '<small><a href="'.ToolBox::toHtml($a->source_url).'">'.ToolBox::toHtml($a->source).'</a></small>';
-			echo '<small>Source : <strong>'.ToolBox::toHtml($a->source).'</strong> ('.$a->source_url.')</small>';
-			echo '</a>';
 		}
 		echo '</div>';
 		?>
-		<p><a href="amount_edit.php">Nouveau montant</a></p>
+		<p><a href="account_edit.php">Nouveau compte</a></p>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>	
 	<script type="text/javascript" src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
