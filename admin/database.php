@@ -20,8 +20,10 @@ if (isset ( $_REQUEST ['cmd'] )) {
 			break;
 		case 'reinitAccountingEntries' :
 			$pdo = $system->getPdo();
-			$pdo->exec('DROP TABLE accounting_entry');
-			$system->createDatabase();
+			$pdo->beginTransaction();
+			$pdo->exec('DELETE FROM accounting_entry');
+			$pdo->exec('ALTER TABLE accounting_entry AUTO_INCREMENT = 1');
+			$pdo->commit();
 	}
 }
 

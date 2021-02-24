@@ -50,6 +50,7 @@ class AccountingEntry {
 	public function setAmountAndTypeFromCsv($input) {
 		$matches = array();
 		preg_match('/(-)?((\d{1,3}|\s)+),(\d{2})/u', $input, $matches);
+		//var_dump($matches);
 		$a = preg_replace('/\s/u', '', $matches[2]).'.'.$matches[4];
 		$this->setAmount($a);
 		strcmp($matches[1], '-')==0 ? $this->setType('spending') : $this->setType('earning');
@@ -97,6 +98,7 @@ class AccountingEntry {
 	 * @return string
 	 */
 	public static function collectionToHtml(array $collection, string $caption= NULL) {
+		global $system;
 		$html = '<table class="table table-sm">';
 		if (!empty($caption)) {
 			$html.= '<caption>'.ToolBox::toHtml($caption).'</caption>';
@@ -108,7 +110,8 @@ class AccountingEntry {
 			$html.='<tr>';
 			$html.='<td>';
 			$html.='<small>'.$e->date->format('d M Y').'</small><br />';
-			$html.=ToolBox::toHtml ($e->description).'</td>';
+			$html.= '<a href="'.$system->getAccountingEntryAdminUrl($e).'">'.ToolBox::toHtml ($e->description).'</a>';
+			$html.= '</td>';
 			$html.='<td>';
 			switch ($e->type){
 				case 'earning' :
@@ -137,4 +140,5 @@ class AccountingEntry {
 	public function isMoreRecent($date) {
 		return $this->date > new Datetime($date);
 	}
+
 }

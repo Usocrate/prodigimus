@@ -379,8 +379,8 @@ if (isset ( $_POST ['task_id'] )) {
 				if (count($entries['toImport'])>0) {
 					echo '<h2>Les opérations à importer</h2>';
 					echo AccountingEntry::collectionToHtml($entries['toImport'], 'Les opérations à importer');
-					echo '<h2>Les opérations qui seront exclues</h2>';
 					if (count($entries['others'])>0) {
+						echo '<h2>Les opérations qui seront exclues</h2>';
 						echo AccountingEntry::collectionToHtml($entries['others'], 'Les opérations qui ne seront pas enregistrées');
 					}
 					echo '<form action="' . $_SERVER ['PHP_SELF'] . '" method="post">';
