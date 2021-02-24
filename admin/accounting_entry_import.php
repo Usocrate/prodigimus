@@ -39,10 +39,9 @@ if (! isset ( $_SESSION ['csvFileImportToComplete'] )) {
 
 	// l'étape du processus d'importation dans lequel on se trouve
 	$_SESSION ['csvFileImportToComplete'] ['taskToFullfill'] = 'upload';
-	
 } else {
-	// si le script elle lancé sur un autre compte, l'importation en cours est abandonnée
-	if ( isset ( $_REQUEST ['account_id'] ) && strcmp ( $_SESSION ['csvFileImportToComplete'] ['account_id'], $_REQUEST ['account_id'] ) != 0) {
+	// si le script est lancé sur un autre compte, l'importation en cours est abandonnée
+	if (isset ( $_REQUEST ['account_id'] ) && strcmp ( $_SESSION ['csvFileImportToComplete'] ['account_id'], $_REQUEST ['account_id'] ) != 0) {
 		unlink ( $_SESSION ['csvFileImportToComplete'] ['file'] ['path'] );
 		$_SESSION ['csvFileImportToComplete'] ['file'] = null;
 		$_SESSION ['csvFileImportToComplete'] ['account_id'] = $_REQUEST ['account_id'];
@@ -50,7 +49,8 @@ if (! isset ( $_SESSION ['csvFileImportToComplete'] )) {
 	$_SESSION ['csvFileImportToComplete'] ['taskToFullfill'] = 'upload';
 }
 
-$account = $system->getAccount ( $_SESSION ['csvFileImportToComplete'] ['account_id']);
+$account = $system->getAccount ( $_SESSION ['csvFileImportToComplete'] ['account_id'] );
+$lastEntryDate = $system->getLastAccountingEntryDate ( $account );
 
 if (isset ( $_POST )) {
 	ToolBox::formatUserPost ( $_POST );
@@ -76,7 +76,7 @@ if (isset ( $_POST ['task_id'] )) {
 							$uploadedFile = $_FILES ['accounting_entries_csv_file'];
 							$a = explode ( '.', $uploadedFile ['name'] );
 							$ext = end ( $a );
-							$filepath = $system->getUploadDirectoryPath () . '/' . $account->getId() . '-' . date ( 'YY-MM-DD' ) . '.' . $ext;
+							$filepath = $system->getUploadDirectoryPath () . '/' . $account->getId () . '-' . date ( 'YY-MM-DD' ) . '.' . $ext;
 
 							if (move_uploaded_file ( $uploadedFile ['tmp_name'], $filepath )) {
 								$_SESSION ['csvFileImportToComplete'] ['file'] ['path'] = $filepath;
@@ -102,7 +102,6 @@ if (isset ( $_POST ['task_id'] )) {
 			} // fin if
 			break;
 
-				
 		case 'mapping' :
 			// le fichier csv a déjà été publié
 			$filepath = $_SESSION ['csvFileImportToComplete'] ['file'] ['path'];
@@ -120,7 +119,7 @@ if (isset ( $_POST ['task_id'] )) {
 			}
 			$_SESSION ['csvFileImportToComplete'] ['taskToFullfill'] = 'checking';
 			break;
-			
+
 		case 'saving' :
 			// le fichier csv a déjà été publié
 			$filepath = $_SESSION ['csvFileImportToComplete'] ['file'] ['path'];
@@ -133,47 +132,49 @@ if (isset ( $_POST ['task_id'] )) {
 						if ($_SESSION ['csvFileImportToComplete'] ['file'] ['mapping']) {
 							if (isset ( $filepath ) && ($handle = fopen ( $filepath, 'r' )) !== FALSE) {
 								$header = fgetcsv ( $handle, null, $delimiter );
-								
+
 								if (strcmp ( $file_encoding, 'ISO-8859-1' ) == 0) {
 									$header = array_map ( 'utf8_encode', $header );
 								}
-								
+
 								while ( $data = fgetcsv ( $handle, null, $delimiter ) ) {
 									$e = new AccountingEntry ();
-									$e->setAccountId($account->id);
-									
+									$e->setAccountId ( $account->id );
+
 									if (strcmp ( $file_encoding, 'ISO-8859-1' ) == 0) {
 										$data = array_map ( 'utf8_encode', $data );
 									}
-									
+
 									for($i = 0; $i < count ( $data ); $i ++) {
 										if (! isset ( $data [$i] )) {
 											continue;
 										}
 										switch ($_SESSION ['csvFileImportToComplete'] ['file'] ['mapping'] [$i]) {
 											case 'Date' :
-												$e->setDateFromCsv($data [$i]);
+												$e->setDateFromCsv ( $data [$i] );
 												break;
 											case 'Date de valeur' :
-												$e->setValueDateFromCsv($data [$i]);
+												$e->setValueDateFromCsv ( $data [$i] );
 												break;
 											case 'Description' :
-												$e->setDescription( $data [$i] );
+												$e->setDescription ( $data [$i] );
 												break;
 											case 'Montant' :
-												if (!empty($data [$i])) {
-													$e->setAmountAndTypeFromCsv($data [$i]);
+												if (! empty ( $data [$i] )) {
+													$e->setAmountAndTypeFromCsv ( $data [$i] );
 												}
 												break;
 										}
 									}
-									//var_dump($e);
-									$system->put($e);
+									// var_dump($e);
+									if ((isset ( $lastEntryDate ) && $e->getDate () > $lastEntryDate) || is_null( $lastEntryDate )) {
+										$system->put ( $e );
+									}
 								}
 							}
 							unlink ( $_SESSION ['csvFileImportToComplete'] ['file'] ['path'] );
 							unset ( $_SESSION ['csvFileImportToComplete'] );
-							
+
 							$_SESSION ['csvFileImportToComplete'] ['taskToFullfill'] = 'confirmation';
 						}
 						break;
@@ -187,24 +188,29 @@ if (isset ( $_POST ['task_id'] )) {
 <!doctype html>
 <html lang="fr">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta name="description" content="<?php echo ToolBox::toHtml($system->getAppliDescription()) ?>" />
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<title><?php echo ToolBox::toHtml($system->getAppliName().' : '.$doc_title); ?></title>
-	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="description"
+	content="<?php echo ToolBox::toHtml($system->getAppliDescription()) ?>" />
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title><?php echo ToolBox::toHtml($system->getAppliName().' : '.$doc_title); ?></title>
+<link type="text/css" rel="stylesheet"
+	href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
 		<nav>
-		  <ol class="breadcrumb">
-		  		<li class="breadcrumb-item"><a href="accounts.php">Les comptes</a></li>
-				<li class="breadcrumb-item"><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
-				<li  class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
-		  </ol>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="accounts.php">Les comptes</a></li>
+				<li class="breadcrumb-item"><a
+					href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
+				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
+			</ol>
 		</nav>
 		<header>
 			<h1><?php echo ToolBox::toHtml($doc_title) ?></h1>
@@ -218,7 +224,7 @@ if (isset ( $_POST ['task_id'] )) {
 				// on doit fournir un fichier csva
 				echo '<form enctype="multipart/form-data" action="' . $_SERVER ['PHP_SELF'] . '" method="post">';
 				echo '<input type="hidden" name="MAX_FILE_SIZE" value="' . $system->getUploadMaxFileSize () . '" />';
-				echo '<input type="hidden" name="account_id" value="' . $account->id. '" />';
+				echo '<input type="hidden" name="account_id" value="' . $account->id . '" />';
 				echo '<input type="hidden" name="task_id" value="upload" />';
 				echo '<div class="form-group">';
 				echo '<label>Envoyez ce fichier</label>';
@@ -295,7 +301,7 @@ if (isset ( $_POST ['task_id'] )) {
 								'Date',
 								'Date de valeur',
 								'Description',
-								'Montant',
+								'Montant'
 						);
 						foreach ( $options as $o ) {
 							echo '<option value="' . Toolbox::toHtml ( $o ) . '">' . Toolbox::toHtml ( $o ) . '</option>';
@@ -312,76 +318,127 @@ if (isset ( $_POST ['task_id'] )) {
 					echo '</form>';
 				}
 				break;
-				
+
 			case 'checking' :
-				$lastEntryDate = $system->getLastAccountingEntryDate($account);
-				If (isset($lastEntryDate)) {
-					echo '<p>On veut enregistrer toutes les opérations effectuées au delà de la date du '.$lastEntryDate->format('d M Y').'</p>';
+				If (isset ( $lastEntryDate )) {
+					echo '<p>On veut enregistrer toutes les opérations effectuées au delà de la date du ' . $lastEntryDate->format ( 'd M Y' ) . '</p>';
 				}
-				
+
 				// aperçu des données qui vont être importées.
-				
+
 				$file_encoding = mb_detect_encoding ( file_get_contents ( $_SESSION ['csvFileImportToComplete'] ['file'] ['path'] ) );
 				$delimiter = $_SESSION ['csvFileImportToComplete'] ['file'] ['delimiter'];
-				
+
 				if ($_SESSION ['csvFileImportToComplete'] ['file'] ['mapping']) {
 					if ($handle = fopen ( $_SESSION ['csvFileImportToComplete'] ['file'] ['path'], 'r' )) {
 						$header = fgetcsv ( $handle, null, $delimiter );
-						
+
 						if (strcmp ( $file_encoding, 'ISO-8859-1' ) == 0) {
 							$header = array_map ( 'utf8_encode', $header );
 						}
-						
-						$entries = array();
-						$entries['toImport'] = array();
-						$entries['others'] = array();
-				
+
+						$entries = array ();
+						$entries ['toImport'] = array ();
+						$entries ['others'] = array ();
+
 						while ( $data = fgetcsv ( $handle, null, $delimiter ) ) {
 							$e = new AccountingEntry ();
-							$e->setAccountId($account->id);
-							
+							$e->setAccountId ( $account->id );
+
 							if (strcmp ( $file_encoding, 'ISO-8859-1' ) == 0) {
 								$data = array_map ( 'utf8_encode', $data );
 							}
-							
+
 							for($i = 0; $i < count ( $data ); $i ++) {
 								if (! isset ( $data [$i] )) {
 									continue;
 								}
 								switch ($_SESSION ['csvFileImportToComplete'] ['file'] ['mapping'] [$i]) {
 									case 'Date' :
-										$e->setDateFromCsv($data [$i]);
+										$e->setDateFromCsv ( $data [$i] );
 										break;
 									case 'Date de valeur' :
-										$e->setValueDateFromCsv($data [$i]);
+										$e->setValueDateFromCsv ( $data [$i] );
 										break;
 									case 'Description' :
-										$e->setDescription( $data [$i] );
+										$e->setDescription ( $data [$i] );
 										break;
 									case 'Montant' :
-										if (!empty($data [$i])) {
-											$e->setAmountAndTypeFromCsv($data [$i]);
+										if (! empty ( $data [$i] )) {
+											$e->setAmountAndTypeFromCsv ( $data [$i] );
 										}
 										break;
 								}
 							}
-							if ($e->getDate() > $lastEntryDate) {
-								$entries['toImport'][] = clone $e;
+							if ((isset ( $lastEntryDate ) && $e->getDate () > $lastEntryDate) || is_null( $lastEntryDate )) {
+								$entries ['toImport'] [] = clone $e;
 							} else {
-								$entries['others'][] = clone $e;
+								$entries ['others'] [] = clone $e;
 							}
 						}
-
 					}
-					//var_dump($entries);
-
+					// var_dump($entries);
 				}
-				if (count($entries['toImport'])>0) {
+				if (count ( $entries ['toImport'] ) > 0) {
 					echo '<h2>Les opérations à importer</h2>';
-					echo AccountingEntry::collectionToHtml($entries['toImport'], 'Les opérations à importer');
-					echo '<h2>Les opérations qui seront exclues</h2>';
-					if (count($entries['others'])>0) {
-						echo AccountingEntry::collectionToHtml($entries['others'], 'Les opérations qui ne seront pas enregistrées');
+					echo '<table class="table table-sm">';
+					echo '<thead><tr><th>Désignation</th><th>Montant</th></tr></thead>';
+					echo '<tbody>';
+					foreach($entries ['toImport'] as $e) {
+						echo '<tr>';
+						echo '<td>';
+						echo '<small>'.$e->getDateToDisplay().'</small><br />';
+						echo  ToolBox::toHtml ($e->description);
+						echo  '</td>';
+						echo '<td>';
+						switch ($e->type){
+							case 'earning' :
+								echo '<small>Revenu</small><br/>';
+								echo $e->amount.' €';
+								break;
+							case 'spending':
+								echo '<small>Dépense</small><br/>';
+								echo $e->amount.' €';
+								break;
+							default :
+								echo $e->amount.' €';
+						}
+						echo '</td>';
+						echo '</tr>';
+					}
+					echo '</tbody>';
+					echo '</table>';
+					
+					
+					if (count ( $entries ['others'] ) > 0) {
+						echo '<h2>Les opérations qui seront exclues</h2>';
+						echo '<table class="table table-sm">';
+						echo '<thead><tr><th>Désignation</th><th>Montant</th></tr></thead>';
+						echo '<tbody>';
+						foreach($entries ['others'] as $e) {
+							echo '<tr>';
+							echo '<td>';
+							echo '<small>'.$e->getDateToDisplay().'</small><br />';
+							echo  ToolBox::toHtml ($e->description);
+							echo  '</td>';
+							echo '<td>';
+							switch ($e->type){
+								case 'earning' :
+									echo '<small>Revenu</small><br/>';
+									echo $e->amount.' €';
+									break;
+								case 'spending':
+									echo '<small>Dépense</small><br/>';
+									echo $e->amount.' €';
+									break;
+								default :
+									echo $e->amount.' €';
+							}
+							echo '</td>';
+							echo '</tr>';
+						}
+						echo '</tbody>';
+						echo '</table>';
 					}
 					echo '<form action="' . $_SERVER ['PHP_SELF'] . '" method="post">';
 					echo '<input type="hidden" name="task_id" value="saving" />';
@@ -400,9 +457,9 @@ if (isset ( $_POST ['task_id'] )) {
 					echo '</form>';
 				}
 				break;
-			
+
 			case 'confirmation' :
-				echo '<p>Tout s\'est bien déroulé. Retrouver la liste des opérations importées sur <a href="account.php?id='.$account->getId().'">l\'écran dédié au compte.</a></p>';
+				echo '<p>Tout s\'est bien déroulé. Retrouver la liste des opérations importées sur <a href="account.php?id=' . $account->getId () . '">l\'écran dédié au compte.</a></p>';
 				break;
 		}
 		?>
