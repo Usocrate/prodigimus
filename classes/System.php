@@ -596,6 +596,7 @@ class System {
 		$data = $statement->fetch ( PDO::FETCH_ASSOC );
 		if ($data) {
 			$output = new AccountingEntry();
+<<<<<<< HEAD
 			$output->setId($data ['id']);
 			$output->setAccountId($data ['account_id']);
 			$output->setDate($data ['date']);
@@ -604,6 +605,16 @@ class System {
 			$output->setType($data ['type']);
 			$output->setAmount($data ['amount']);
 			$output->setTimestamp($data ['timestamp']);
+=======
+			$output->id = $data ['id'];
+			$output->account_id = $data ['account_id'];
+			$output->date = $data ['date'];
+			$output->value_date = $data ['value_date'];
+			$output->description = $data ['description'];
+			$output->type = $data ['type'];
+			$output->amount = $data ['amount'];
+			$output->timestamp = $data ['timestamp'];
+>>>>>>> branch 'main' of git@github.com:Usocrate/prodigimus.git
 			return $output;
 		}
 		return null;
