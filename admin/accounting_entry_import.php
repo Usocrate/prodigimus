@@ -381,7 +381,6 @@ if (isset ( $_POST ['task_id'] )) {
 				}
 				if (count ( $entries ['toImport'] ) > 0) {
 					echo '<h2>Les opérations à importer</h2>';
-<<<<<<< HEAD
 					echo '<table class="table table-sm">';
 					echo '<thead><tr><th>Désignation</th><th>Montant</th></tr></thead>';
 					echo '<tbody>';
@@ -440,12 +439,6 @@ if (isset ( $_POST ['task_id'] )) {
 						}
 						echo '</tbody>';
 						echo '</table>';
-=======
-					echo AccountingEntry::collectionToHtml($entries['toImport'], 'Les opérations à importer');
-					if (count($entries['others'])>0) {
-						echo '<h2>Les opérations qui seront exclues</h2>';
-						echo AccountingEntry::collectionToHtml($entries['others'], 'Les opérations qui ne seront pas enregistrées');
->>>>>>> branch 'main' of git@github.com:Usocrate/prodigimus.git
 					}
 					echo '<form action="' . $_SERVER ['PHP_SELF'] . '" method="post">';
 					echo '<input type="hidden" name="task_id" value="saving" />';

@@ -125,11 +125,7 @@ class AccountingEntry {
 		foreach($collection as $e) {
 			$html.='<tr>';
 			$html.='<td>';
-<<<<<<< HEAD
 			$html.='<small>'.$e->getDateToDisplay().'</small><br />';
-=======
-			$html.='<small>'.$e->date->format('d M Y').'</small><br />';
->>>>>>> branch 'main' of git@github.com:Usocrate/prodigimus.git
 			$html.= '<a href="'.$system->getAccountingEntryAdminUrl($e).'">'.ToolBox::toHtml ($e->description).'</a>';
 			$html.= '</td>';
 			$html.='<td>';

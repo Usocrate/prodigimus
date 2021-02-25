@@ -40,7 +40,6 @@ $doc_title = 'Opération';
 		<nav>
 		  <ol class="breadcrumb">
 		  		<li class="breadcrumb-item"><a href="accounts.php">Les comptes</a></li>
-<<<<<<< HEAD
 				<li class="breadcrumb-item"><a href="account.php?id=<?php echo $account->getId() ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
 				<li  class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 		  </ol>
@@ -79,35 +78,6 @@ $doc_title = 'Opération';
 				echo $accounting_entry->getAmount().' €.';
 		}
 		echo '</p>';
-=======
-				<li class="breadcrumb-item"><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
-				<li  class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
-		  </ol>
-		</nav>
-		
-		<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDate() ?></small></h1>
-		
-		<?php
-		if (count ( $messages ) > 0) {
-			echo '<div class="alert alert-info" role="alert">';
-			foreach ( $messages as $m ) {
-				echo '<p>' . ToolBox::toHtml ( $m ) . '</p>';
-			}
-			echo '</div>';
-		}
-		
-		$tags = $system->getAccountingEntryTags($accounting_entry);
-		if (count($tags>0)) {
-			echo '<div>';
-			foreach ($tags as $t) {
-				echo '<span>'.ToolBox::toHtml($t).'</span> ';
-			}
-			echo '</div>';
-		}
-		
-		echo "<div>";
-		echo '<p>'.$accounting_entry->getType().' : '.$accounting_entry->getAmount().' €</p>';
->>>>>>> branch 'main' of git@github.com:Usocrate/prodigimus.git
 		echo "</div>";
 		
 		$similarAccountingEntries = $system->getSimilarAccountingEntries($accounting_entry);
