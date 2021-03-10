@@ -69,13 +69,13 @@ $doc_title = 'Opération';
 		echo '<p>';
 		switch ($accounting_entry->getType()) {
 			case 'spending' :
-				echo 'Une dépense de <strong>'.$accounting_entry->getAmount().' €</strong>.';
+				echo 'Une dépense de <strong>'.$accounting_entry->getAmountToDisplay().'</strong>.';
 				break;
 			case 'earning' :
-				echo 'Un revenu de <strong>'.$accounting_entry->getAmount().' €</strong>.';
+				echo 'Un revenu de <strong>'.$accounting_entry->getAmountToDisplay().'</strong>.';
 				break;
 			default :
-				echo $accounting_entry->getAmount().' €.';
+				echo $accounting_entry->getAmountToDisplay();
 		}
 		echo '</p>';
 		echo "</div>";

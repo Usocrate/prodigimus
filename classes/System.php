@@ -595,15 +595,15 @@ class System {
 		$statement->execute ();
 		$data = $statement->fetch ( PDO::FETCH_ASSOC );
 		if ($data) {
-			$output = new AccountingEntry();
-			$output->setId($data ['id']);
-			$output->setAccountId($data ['account_id']);
-			$output->setDate($data ['date']);
-			$output->setValueDate($data ['value_date']);
-			$output->setDescription($data ['description']);
-			$output->setType($data ['type']);
-			$output->setAmount($data ['amount']);
-			$output->setTimestamp($data ['timestamp']);
+			$output = new AccountingEntry ();
+			$output->setId ( $data ['id'] );
+			$output->setAccountId ( $data ['account_id'] );
+			$output->setDate ( $data ['date'] );
+			$output->setValueDate ( $data ['value_date'] );
+			$output->setDescription ( $data ['description'] );
+			$output->setType ( $data ['type'] );
+			$output->setAmount ( $data ['amount'] );
+			$output->setTimestamp ( $data ['timestamp'] );
 			return $output;
 		}
 		return null;
@@ -657,6 +657,7 @@ class System {
 		return $output;
 	}
 	/**
+	 *
 	 * @since 02/2021
 	 * @param AccountingEntry $ae
 	 * @return AccountingEntry[]
@@ -664,9 +665,9 @@ class System {
 	public function getSimilarAccountingEntries(AccountingEntry $ae) {
 		$sql = 'SELECT * FROM accounting_entry WHERE id!=:id AND account_id=:account_id AND description=:description ORDER BY date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
-		$statement->bindValue ( ':id', $ae->getId(), PDO::PARAM_INT );
-		$statement->bindValue ( ':account_id', $ae->getAccountId(), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $ae->getDescription(), PDO::PARAM_STR );
+		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
+		$statement->bindValue ( ':account_id', $ae->getAccountId (), PDO::PARAM_INT );
+		$statement->bindValue ( ':description', $ae->getDescription (), PDO::PARAM_STR );
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
@@ -684,7 +685,6 @@ class System {
 		}
 		return $output;
 	}
-	
 	public function getLastAccountingEntryDate(Account $account) {
 		$sql = 'SELECT date FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC LIMIT 1';
 		$statement = $this->getPdo ()->prepare ( $sql );
@@ -707,12 +707,12 @@ class System {
 		$data = $statement->fetch ( PDO::FETCH_ASSOC );
 		if ($data) {
 			$output = new Amount ();
-			$output->id = $data ['id'];
-			$output->title = $data ['title'];
-			$output->description = $data ['description'];
-			$output->value = $data ['value'];
-			$output->source = $data ['source'];
-			$output->source_url = $data ['source_url'];
+			$output->setId ( $data ['id'] );
+			$output->setTitle ( $data ['title'] );
+			$output->setDescription ( $data ['description'] );
+			$output->setValue ( $data ['value'] );
+			$output->setSource ( $data ['source'] );
+			$output->setSourceUrl ( $data ['source_url'] );
 			return $output;
 		}
 		return null;
@@ -730,14 +730,13 @@ class System {
 		$output = array ();
 		foreach ( $rows as $r ) {
 			$a = new Amount ();
-			$a->id = $r ['id'];
-			$a->title = $r ['title'];
-			$a->description = $r ['description'];
-			$a->value = $r ['value'];
-			$a->currency = $r ['currency'];
-			$a->type = $r ['type'];
-			$a->source = $r ['source'];
-			$a->source_url = $r ['source_url'];
+			$a->setId ( $r ['id'] );
+			$a->setTitle ( $r ['title'] );
+			$a->setDescription ( $r ['description'] );
+			$a->setValue ( $r ['value'] );
+			$a->setType ( $r ['type'] );
+			$a->setSource ( $r ['source'] );
+			$a->setSourceUrl ( $r ['source_url'] );
 			$output [] = clone $a;
 			unset ( $a );
 		}

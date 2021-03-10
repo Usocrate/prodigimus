@@ -22,7 +22,7 @@ if (! empty ( $_REQUEST ['id'] )) {
 
 $messages = array ();
 
-$doc_title = $account->description;
+$doc_title = $account->getDescription();
 ?>
 <!doctype html>
 <html lang="fr">
@@ -51,7 +51,7 @@ $doc_title = $account->description;
 		<div class="d-flex flex-row justify-content-between mb-3 mt-3">
 			<h2>Dernières opérations</h2>
 			<div>
-				<a class="btn btn-outline-primary" href="accounting_entry_import.php?account_id=<?php echo $account->id; ?>">Importer de nouvelles opérations</a>
+				<a class="btn btn-outline-primary" href="accounting_entry_import.php?account_id=<?php echo $account->getId(); ?>">Importer de nouvelles opérations</a>
 			</div>
 		</div>
 		
