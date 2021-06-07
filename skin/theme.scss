@@ -13,6 +13,8 @@ $black:    #000 !default;
 $primary: #8fb569;
 $secondary:#091e05;
 
+$bg: $gray-200;
+
 $font-family-sans-serif : "Open Sans";
 $headings-font-family: "Oswald";
 $btn-font-family: "Oswald";
@@ -26,7 +28,8 @@ $btn-font-size: 1.1rem;
 @import "../vendor/twbs/bootstrap/scss/bootstrap";
 
 BODY {
-	background-image: url("./images/bg.gif");
+	background-color: $bg;
+	background-image: url('./images/bg.svg');
 }
 
 BODY > .container-fluid, BODY > .container {

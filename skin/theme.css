@@ -9902,7 +9902,8 @@ h3 {
   }
 }
 BODY {
-  background-image: url("./images/bg.gif");
+  background-color: #e9ecef;
+  background-image: url("./images/bg.svg");
 }
 
 BODY > .container-fluid, BODY > .container-sm, BODY > .container-md, BODY > .container-lg, BODY > .container-xl, BODY > .container {
