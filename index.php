@@ -35,7 +35,7 @@ $doc_title = 'Montants';
 			if (count($amounts)>0) {
 				echo '<ol>';
 				foreach($amounts as $a) {
-					echo '<li><a href="amount_edit.php?id='.$a->getId().'">'.ToolBox::toHtml($a->getTitle()).'</a>: '.$a->getValueToDisplay($nf).'</small></li>';
+					echo '<li>'.ToolBox::toHtml($a->getTitle()).' : '.$a->getValueToDisplay($nf).'</li>';
 				}
 				echo '</ol>';
 			} else {

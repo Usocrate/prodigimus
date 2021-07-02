@@ -60,7 +60,7 @@ class Amount {
 	}
 	
 	public function isSourceUrlKnown() {
-		return isset($this->source_url);
+		return !empty($this->source_url);
 	}
 	
 	public function setValue($input) {

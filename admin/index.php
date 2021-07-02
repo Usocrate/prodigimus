@@ -37,7 +37,6 @@ $doc_title = 'Montants';
 			echo '<a href="amount_edit.php?id=' . $a->getId() . '" class="list-group-item list-group-item-action">';
 			echo '<div class="d-flex w-100 justify-content-between">';
 			echo '<h5 class="mb-1">'.ToolBox::toHtml($a->getTitle()).'</h5>';
-			//echo '<small>'.ToolBox::toHtml($a->value).' '.ToolBox::toHtml($a->currency).'</small>';
 			echo '<small>'.$a->getValueToDisplay($nf).'</small>';
 			echo '</div>';
 			echo '<p class="mb-1">'.ToolBox::toHtml($a->getDescription()).'</p>';

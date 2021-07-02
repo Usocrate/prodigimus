@@ -188,17 +188,11 @@ if (isset ( $_POST ['task_id'] )) {
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-	content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="description"
-	content="<?php echo ToolBox::toHtml($system->getAppliDescription()) ?>" />
-<meta charset="UTF-8">
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title><?php echo ToolBox::toHtml($system->getAppliName().' : '.$doc_title); ?></title>
-<link type="text/css" rel="stylesheet"
-	href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="<?php echo ToolBox::toHtml($system->getAppliDescription()) ?>" />
+	<title><?php echo ToolBox::toHtml($system->getAppliName().' : '.$doc_title); ?></title>
+	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>
