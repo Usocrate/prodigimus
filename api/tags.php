@@ -21,8 +21,11 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 		$ae = new AccountingEntry();
 		$ae->setId($_POST['accounting_entry_id']);
 		$system->tagAccountingEntry($ae, $_POST['label']);
-		//header('Content-type: text/plain; charset=UTF-8');
 		break;
 	case 'DELETE' :
+		$ae = new AccountingEntry();
+		$ae->setId($_GET['accounting_entry_id']);
+		$system->untagAccountingEntry($ae, $_GET['label']);
 		break;
 }
+//header('Content-type: text/plain; charset=UTF-8');

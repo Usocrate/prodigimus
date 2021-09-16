@@ -774,5 +774,18 @@ class System {
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
 		return $statement->execute ();
 	}
+	/**
+	 * @since 09/2021
+	 * @param AccountingEntry $ae
+	 * @param string $label
+	 * @return boolean
+	 */
+	public function untagAccountingEntry(AccountingEntry $ae, $label) {
+		$sql = 'DELETE FROM tag WHERE accounting_entry_id=:ae_id AND label=:label';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
+		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		return $statement->execute () ? 'requête OK' : 'requête KO';
+	}
 }
 ?>

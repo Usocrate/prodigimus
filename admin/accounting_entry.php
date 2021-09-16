@@ -72,7 +72,14 @@ $doc_title = 'Opération';
 		}
 		echo '</p>';
 		echo "</div>";
-
+		?>
+		
+		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
+			<?php $tags = $system->getAccountingEntryTags ( $accounting_entry ); ?>
+			<div><input id="newtag_i" type="text" value="<?php if (count ( $tags > 0 )) echo implode(',',$tags) ?>"></input></div>
+		</form>
+		
+		<?php 
 		$similarAccountingEntries = $system->getSimilarAccountingEntries ( $accounting_entry );
 		if (count ( $similarAccountingEntries ) > 0) {
 			echo '<h2>Opérations similaires</h2>';
@@ -80,10 +87,6 @@ $doc_title = 'Opération';
 		}
 
 		?>
-		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
-			<?php $tags = $system->getAccountingEntryTags ( $accounting_entry ); ?>
-			<div><input id="newtag_i" type="text" value="<?php if (count ( $tags > 0 )) echo implode(',',$tags) ?>"></input></div>
-		</form>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -92,16 +95,21 @@ $doc_title = 'Opération';
 	<script>
 		var input = document.getElementById('newtag_i');
 		var t = new Tagify(input);
-		t.on('add', addTag);
+		t.on('add', addTag).on('remove', removeTag);
 		function addTag (e) {
-			//console.log(e.type, e.detail.value+"-> enregistrer ");
-			console.log(e.type,":", e.detail);
-			console.log("tag:", e.detail.data.value);
+			//console.log(e.type,":", e.detail);
+			//console.log("tag:", e.detail.data.value);
 			const xhr = new XMLHttpRequest();
 			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
 			xhr.open('POST',url);
 			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xhr.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+e.detail.data.value);
+		}
+		function removeTag (e) {
+			const xhr = new XMLHttpRequest();
+			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+e.detail.data.value;
+			xhr.open('DELETE',url);
+			xhr.send();
 		}
 	</script>
 </body>
