@@ -31,6 +31,7 @@ $doc_title = 'Opération';
 	<title><?php echo ToolBox::toHtml($doc_title) ?></title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
@@ -46,23 +47,13 @@ $doc_title = 'Opération';
 			</ol>
 		</nav>
 
-		<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small>
-		</h1>
+		<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small></h1>
 		
 		<?php
 		if (count ( $messages ) > 0) {
 			echo '<div class="alert alert-info" role="alert">';
 			foreach ( $messages as $m ) {
 				echo '<p>' . ToolBox::toHtml ( $m ) . '</p>';
-			}
-			echo '</div>';
-		}
-
-		$tags = $system->getAccountingEntryTags ( $accounting_entry );
-		if (count ( $tags > 0 )) {
-			echo '<div>';
-			foreach ( $tags as $t ) {
-				echo '<span>' . ToolBox::toHtml ( $t ) . '</span> ';
 			}
 			echo '</div>';
 		}
@@ -89,26 +80,29 @@ $doc_title = 'Opération';
 		}
 
 		?>
-		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"
-			enctype="multipart/form-data" style="display: none">
-			<div>
-				<label for="newtag_i"">nouvelle étiquette</label><input
-					id="newtag_i" type="text"></input>
-			</div>
-			<input name="cmd" type="hidden" value="tag"></input> <input name="id"
-				type="hidden" value="<?php echo $accounting_entry->getId() ?>"></input>
-			<button>Coller</button>
+		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
+			<?php $tags = $system->getAccountingEntryTags ( $accounting_entry ); ?>
+			<div><input id="newtag_i" type="text" value="<?php if (count ( $tags > 0 )) echo implode(',',$tags) ?>"></input></div>
 		</form>
 	</div>
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-		crossorigin="anonymous"></script>
-	<script
-		src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://unpkg.com/react@17/umd/react.development.js"
-		crossorigin></script>
-	<script
-		src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"
-		crossorigin></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://unpkg.com/@yaireo/tagify"></script>
+	<script	src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+	<script>
+		var input = document.getElementById('newtag_i');
+		var t = new Tagify(input);
+		t.on('add', addTag);
+		function addTag (e) {
+			//console.log(e.type, e.detail.value+"-> enregistrer ");
+			console.log(e.type,":", e.detail);
+			console.log("tag:", e.detail.data.value);
+			const xhr = new XMLHttpRequest();
+			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
+			xhr.open('POST',url);
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+e.detail.data.value);
+		}
+	</script>
 </body>
 </html>
