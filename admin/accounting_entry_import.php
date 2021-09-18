@@ -200,7 +200,7 @@ if (isset ( $_POST ['task_id'] )) {
 	<div class="container-fluid">
 		<nav>
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="accounts.php">Les comptes</a></li>
+				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
 				<li class="breadcrumb-item"><a
 					href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>

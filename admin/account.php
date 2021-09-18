@@ -30,12 +30,19 @@ $doc_title = $account->getDescription();
 	<title><?php echo ToolBox::toHtml($doc_title) ?></title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
+				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
+			</ol>
+		</nav>	
 		<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
 		
 		<?php

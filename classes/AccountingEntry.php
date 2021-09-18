@@ -5,6 +5,7 @@ class AccountingEntry {
 	public $date;
 	public $value_date;
 	public $description;
+	public $tags;
 	public $type;
 	public $amount;
 	public $timestamp;
@@ -28,8 +29,6 @@ class AccountingEntry {
 	/**
 	 *
 	 * @since 02/2021
-	 * @param
-	 *        	$input
 	 */
 	public function setDateFromCsv($input) {
 		$matches = array ();
@@ -39,8 +38,6 @@ class AccountingEntry {
 	/**
 	 *
 	 * @since 02/2021
-	 * @param
-	 *        	$input
 	 */
 	public function setValueDateFromCsv($input) {
 		$matches = array ();
@@ -50,8 +47,6 @@ class AccountingEntry {
 	/**
 	 *
 	 * @since 02/2021
-	 * @param
-	 *        	$input
 	 */
 	public function setAmountAndTypeFromCsv($input) {
 		$matches = array ();
@@ -95,6 +90,24 @@ class AccountingEntry {
 	public function getHtmlDescription() {
 		return isset ( $this->description ) ? ToolBox::toHtml ( $this->description ) : NULL;
 	}
+	public function setTags($input) {
+		if (isset ( $input ))
+			$this->tags = explode ( ',', $input );
+	}
+	public function getTags() {
+		return isset ( $this->tags ) ? $this->tags : NULL;
+	}
+	public function getHtmlTags() {
+		global $system;
+		
+		if (isset ( $this->tags )) {
+			$output = '';
+			foreach ( $this->tags as $t ) {
+				$output .= '<a href="'.$system->getAppliUrl().'/admin/tag.php?label='.urlencode($t).'"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
+			}
+			return $output;
+		}
+	}
 	public function setType($input) {
 		$this->type = $input;
 	}
@@ -132,7 +145,7 @@ class AccountingEntry {
 	public static function collectionToHtml(array $collection, string $caption = NULL) {
 		global $system;
 		$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
-		$html = '<table class="table table-sm">';
+		$html = '<table class="table table-sm table-responsive-sm">';
 		if (! empty ( $caption )) {
 			$html .= '<caption>' . ToolBox::toHtml ( $caption ) . '</caption>';
 		}
@@ -144,6 +157,8 @@ class AccountingEntry {
 			$html .= '<td>';
 			$html .= '<small>' . $e->getDateToDisplay () . '</small><br />';
 			$html .= '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
+			$html .= '<div>' . $e->getHtmlTags () . '</div>';
+			// $html .= '<div><input class="tag_i" data-account_entry_id="'.$e->getId().'" type="text" value="'.$e->getHtmlTags().'"></input></div>';
 			$html .= '</td>';
 			$html .= '<td>';
 			switch ($e->type) {
@@ -168,8 +183,6 @@ class AccountingEntry {
 	/**
 	 *
 	 * @since 02/2021
-	 * @param
-	 *        	$date
 	 * @return boolean
 	 */
 	public function isMoreRecent($date) {

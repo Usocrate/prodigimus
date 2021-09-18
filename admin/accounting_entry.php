@@ -40,7 +40,7 @@ $doc_title = 'Opération';
 	<div class="container-fluid">
 		<nav>
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="accounts.php">Les comptes</a></li>
+				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
 				<li class="breadcrumb-item"><a
 					href="account.php?id=<?php echo $account->getId() ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
@@ -76,7 +76,7 @@ $doc_title = 'Opération';
 		
 		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
 			<?php $tags = $system->getAccountingEntryTags ( $accounting_entry ); ?>
-			<div><input id="newtag_i" type="text" value="<?php if (count ( $tags > 0 )) echo implode(',',$tags) ?>"></input></div>
+			<div><input id="tag_i" type="text" value="<?php if (count ( $tags) > 0) echo implode(',',$tags) ?>"></input></div>
 		</form>
 		
 		<?php 
@@ -93,7 +93,8 @@ $doc_title = 'Opération';
 	<script src="https://unpkg.com/@yaireo/tagify"></script>
 	<script	src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
 	<script>
-		var input = document.getElementById('newtag_i');
+	window.onload = function() {
+		var input = document.getElementById('tag_i');
 		var t = new Tagify(input);
 		t.on('add', addTag).on('remove', removeTag);
 		function addTag (e) {
@@ -111,6 +112,7 @@ $doc_title = 'Opération';
 			xhr.open('DELETE',url);
 			xhr.send();
 		}
+	};
 	</script>
 </body>
 </html>

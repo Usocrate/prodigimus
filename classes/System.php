@@ -632,11 +632,14 @@ class System {
 	/**
 	 *
 	 * @since 01/2021
+	 * @version 09/2021
 	 * @param Account $account
 	 * @return AccountingEntry[]
 	 */
 	public function getAccountingEntries(Account $account) {
-		$sql = 'SELECT * FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC';
+		$sql = 'SELECT e.*, GROUP_CONCAT(t.label SEPARATOR \',\') AS tags FROM accounting_entry AS e LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
+		$sql .= ' WHERE e.account_id=:account_id';
+		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':account_id', $account->getId (), PDO::PARAM_INT );
 		$statement->execute ();
@@ -648,6 +651,7 @@ class System {
 			$e->setDate ( $r ['date'] );
 			$e->setValueDate ( $r ['value_date'] );
 			$e->setDescription ( $r ['description'] );
+			$e->setTags ( $r ['tags'] );
 			$e->setAmount ( $r ['amount'] );
 			$e->setType ( $r ['type'] );
 			$e->setTimestamp ( $r ['timestamp'] );
@@ -775,6 +779,7 @@ class System {
 		return $statement->execute ();
 	}
 	/**
+	 *
 	 * @since 09/2021
 	 * @param AccountingEntry $ae
 	 * @param string $label
@@ -786,6 +791,72 @@ class System {
 		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
 		return $statement->execute () ? 'requête OK' : 'requête KO';
+	}
+	/**
+	 *
+	 * @since 09/2021
+	 * @param Account $a
+	 */
+	public function getTagSpendingStats($label, Account $a = Null) {
+		$sql = 'SELECT SUM(ae.amount) AS amount, YEAR(ae.date) AS year, MONTH(ae.date) AS month';
+		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
+		$criteria = array ();
+		$criteria [] = 't.label=:label';
+		$criteria [] = '(YEAR(ae.date) = YEAR(NOW()) OR YEAR(ae.date) = YEAR(NOW())-1)';
+		$criteria [] = 'ae.type=\'spending\'';
+		if (! is_null ( $a )) {
+			$criteria [] = 'ae.account_id=:account_id';
+		}
+		$sql .= ' WHERE ' . implode ( ' AND ', $criteria );
+		$sql .= ' GROUP BY YEAR(ae.date), MONTH(ae.date)';
+		$sql .= ' ORDER BY YEAR(ae.date) DESC, MONTH(ae.date) ASC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		if (! is_null ( $a )) {
+			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
+		}
+		$statement->execute();
+		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		//echo $statement->debugDumpParams();
+		return $rows;
+	}
+	/**
+	 *
+	 * @since 09/2021
+	 * @param Account $a
+	 */
+	public function getTagSpendingAccountingEntries($label, Account $a = Null) {
+		$sql = 'SELECT ae.*';
+		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
+		$criteria = array ();
+		$criteria [] = 't.label=:label';
+		$criteria [] = 'ae.type=\'spending\'';
+		if (! is_null ( $a )) {
+			$criteria [] = 'ae.account_id=:account_id';
+		}
+		$sql .= ' WHERE ' . implode ( ' AND ', $criteria );
+		$sql .= ' ORDER BY ae.date DESC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		if (! is_null ( $a )) {
+			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
+		}
+		$statement->execute();
+		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		$output = array ();
+		foreach ( $rows as $r ) {
+			$e = new AccountingEntry ();
+			$e->setId ( $r ['id'] );
+			$e->setDate ( $r ['date'] );
+			$e->setValueDate ( $r ['value_date'] );
+			$e->setDescription ( $r ['description'] );
+			$e->setAmount ( $r ['amount'] );
+			$e->setType ( $r ['type'] );
+			$e->setTimestamp ( $r ['timestamp'] );
+			$output [] = clone $e;
+			unset ( $e );
+		}
+		return $output;
 	}
 }
 ?>
