@@ -72,11 +72,19 @@ $doc_title = 'Opération';
 		}
 		echo '</p>';
 		echo "</div>";
+		
+		$tags = $system->getAccountingEntryTags ( $accounting_entry ); 
+		if (isset ( $tags )) {
+			echo '<div>';
+			foreach ( $tags as $t ) {
+				echo '<a href="'.$system->getAppliUrl().'/admin/tag.php?label='.urlencode($t).'"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
+			}
+			echo '</div>';
+		}
 		?>
 		
 		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
-			<?php $tags = $system->getAccountingEntryTags ( $accounting_entry ); ?>
-			<div><input id="tag_i" type="text" value="<?php if (count ( $tags) > 0) echo implode(',',$tags) ?>"></input></div>
+			<div><label>Catégories à associer</label><input id="tag_i" type="text"></input></div>
 		</form>
 		
 		<?php 

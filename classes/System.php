@@ -667,13 +667,25 @@ class System {
 	 * @return AccountingEntry[]
 	 */
 	public function getSimilarAccountingEntries(AccountingEntry $ae) {
-		$sql = 'SELECT * FROM accounting_entry WHERE id!=:id AND account_id=:account_id AND description=:description ORDER BY date DESC';
+		// ex. de motifs PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
+		
+		if (preg_match('/(PAIEMENT CB [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription(), $matches)) {
+			$stringToSearchInDescription = '%'.$matches[2].'%';
+			//print_r($matches);
+		} else {
+			$stringToSearchInDescription = $ae->getDescription ();
+		}
+		
+		$sql = 'SELECT * FROM accounting_entry ';
+		$sql.= ' WHERE id!=:id AND account_id=:account_id AND description LIKE :description ORDER BY date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
 		$statement->bindValue ( ':account_id', $ae->getAccountId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $ae->getDescription (), PDO::PARAM_STR );
+		$statement->bindValue ( ':description', $stringToSearchInDescription, PDO::PARAM_STR );
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		//$statement->debugDumpParams();
+		
 		$output = array ();
 		foreach ( $rows as $r ) {
 			$e = new AccountingEntry ();
