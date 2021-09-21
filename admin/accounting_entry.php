@@ -74,17 +74,11 @@ $doc_title = 'Opération';
 		echo "</div>";
 		
 		$tags = $system->getAccountingEntryTags ( $accounting_entry ); 
-		if (isset ( $tags )) {
-			echo '<div>';
-			foreach ( $tags as $t ) {
-				echo '<a href="'.$system->getAppliUrl().'/admin/tag.php?label='.urlencode($t).'"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
-			}
-			echo '</div>';
-		}
+	
 		?>
 		
 		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
-			<div><label>Catégories à associer</label><input id="tag_i" type="text"></input></div>
+			<input id="tag_i" type="text" value="<?php echo implode(',',$tags) ?>"></input>
 		</form>
 		
 		<?php 
@@ -93,7 +87,6 @@ $doc_title = 'Opération';
 			echo '<h2>Opérations similaires</h2>';
 			echo AccountingEntry::collectionToHtml ( $similarAccountingEntries );
 		}
-
 		?>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -104,22 +97,24 @@ $doc_title = 'Opération';
 	window.onload = function() {
 		var input = document.getElementById('tag_i');
 		var t = new Tagify(input);
-		t.on('add', addTag).on('remove', removeTag);
-		function addTag (e) {
-			//console.log(e.type,":", e.detail);
-			//console.log("tag:", e.detail.data.value);
+		t.on('change', function(e){
+	
 			const xhr = new XMLHttpRequest();
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
-			xhr.open('POST',url);
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+e.detail.data.value);
-		}
-		function removeTag (e) {
-			const xhr = new XMLHttpRequest();
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+e.detail.data.value;
+			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?accounting_entry_id=<?php echo $accounting_entry->getId() ?>';
 			xhr.open('DELETE',url);
 			xhr.send();
-		}
+
+			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
+			if (e.detail.value!==null && e.detail.value.length>0) {
+				var tags = JSON.parse(e.detail.value);
+				for (i=0; i<tags.length; i++) {
+					const xhr2 = new XMLHttpRequest();
+					xhr2.open('POST',url);
+					xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xhr2.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+tags[i].value);
+				}
+			}
+		});
 	};
 	</script>
 </body>

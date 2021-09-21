@@ -97,6 +97,9 @@ class AccountingEntry {
 	public function getTags() {
 		return isset ( $this->tags ) ? $this->tags : NULL;
 	}
+	public function getCommaSeparatedTags() {
+		return isset ( $this->tags ) ? $this->tags : NULL;
+	}
 	public function getHtmlTags() {
 		global $system;
 		

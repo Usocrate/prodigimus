@@ -25,7 +25,7 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 	case 'DELETE' :
 		$ae = new AccountingEntry();
 		$ae->setId($_GET['accounting_entry_id']);
-		$system->untagAccountingEntry($ae, $_GET['label']);
+		$system->untagAccountingEntry($ae);
 		break;
 }
 //header('Content-type: text/plain; charset=UTF-8');

@@ -637,7 +637,8 @@ class System {
 	 * @return AccountingEntry[]
 	 */
 	public function getAccountingEntries(Account $account) {
-		$sql = 'SELECT e.*, GROUP_CONCAT(t.label SEPARATOR \',\') AS tags FROM accounting_entry AS e LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
+		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags';
+		$sql .= ' FROM accounting_entry AS e LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
 		$sql .= ' WHERE e.account_id=:account_id';
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
@@ -668,24 +669,24 @@ class System {
 	 */
 	public function getSimilarAccountingEntries(AccountingEntry $ae) {
 		// ex. de motifs PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
-		
-		if (preg_match('/(PAIEMENT CB [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription(), $matches)) {
-			$stringToSearchInDescription = '%'.$matches[2].'%';
-			//print_r($matches);
+		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
+			$stringToSearchInDescription = '%' . $matches [3] . '%';
+			// print_r($matches);
 		} else {
 			$stringToSearchInDescription = $ae->getDescription ();
 		}
-		
-		$sql = 'SELECT * FROM accounting_entry ';
-		$sql.= ' WHERE id!=:id AND account_id=:account_id AND description LIKE :description ORDER BY date DESC';
+
+		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags FROM accounting_entry AS e';
+		$sql .= ' LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
+		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
+		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':account_id', $ae->getAccountId (), PDO::PARAM_INT );
 		$statement->bindValue ( ':description', $stringToSearchInDescription, PDO::PARAM_STR );
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		//$statement->debugDumpParams();
-		
+		// $statement->debugDumpParams();
+
 		$output = array ();
 		foreach ( $rows as $r ) {
 			$e = new AccountingEntry ();
@@ -693,6 +694,7 @@ class System {
 			$e->setDate ( $r ['date'] );
 			$e->setValueDate ( $r ['value_date'] );
 			$e->setDescription ( $r ['description'] );
+			$e->setTags ( $r ['tags'] );
 			$e->setAmount ( $r ['amount'] );
 			$e->setType ( $r ['type'] );
 			$e->setTimestamp ( $r ['timestamp'] );
@@ -787,7 +789,7 @@ class System {
 		$sql = 'INSERT INTO tag SET accounting_entry_id=:ae_id, label=:label';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		$statement->bindValue ( ':label', ucfirst($label), PDO::PARAM_STR );
 		return $statement->execute ();
 	}
 	/**
@@ -797,11 +799,17 @@ class System {
 	 * @param string $label
 	 * @return boolean
 	 */
-	public function untagAccountingEntry(AccountingEntry $ae, $label) {
-		$sql = 'DELETE FROM tag WHERE accounting_entry_id=:ae_id AND label=:label';
+	public function untagAccountingEntry(AccountingEntry $ae, $label = NULL) {
+		$sql = 'DELETE FROM tag';
+		$sql .= ' WHERE accounting_entry_id=:ae_id';
+		if (isset ( $label )) {
+			$sql .= ' AND label=:label';
+		}
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		if (isset ( $label )) {
+			$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		}
 		return $statement->execute () ? 'requête OK' : 'requête KO';
 	}
 	/**
@@ -827,9 +835,9 @@ class System {
 		if (! is_null ( $a )) {
 			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
 		}
-		$statement->execute();
+		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		//echo $statement->debugDumpParams();
+		// echo $statement->debugDumpParams();
 		return $rows;
 	}
 	/**
@@ -853,7 +861,7 @@ class System {
 		if (! is_null ( $a )) {
 			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
 		}
-		$statement->execute();
+		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
 		foreach ( $rows as $r ) {
