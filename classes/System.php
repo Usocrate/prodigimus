@@ -846,15 +846,18 @@ class System {
 	 * @param Account $a
 	 */
 	public function getTagSpendingAccountingEntries($label, Account $a = Null) {
-		$sql = 'SELECT ae.*';
+		$sql = 'SELECT ae.*, GROUP_CONCAT(t2.label ORDER BY t2.label ASC SEPARATOR \',\') AS tags';
 		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
+		$sql .= ' LEFT JOIN tag AS t2 ON (t2.accounting_entry_id = ae.id)';
 		$criteria = array ();
 		$criteria [] = 't.label=:label';
 		$criteria [] = 'ae.type=\'spending\'';
+		$criteria [] = 't2.label != t.label';
 		if (! is_null ( $a )) {
 			$criteria [] = 'ae.account_id=:account_id';
 		}
 		$sql .= ' WHERE ' . implode ( ' AND ', $criteria );
+		$sql .= ' GROUP BY ae.id';
 		$sql .= ' ORDER BY ae.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
@@ -870,6 +873,7 @@ class System {
 			$e->setDate ( $r ['date'] );
 			$e->setValueDate ( $r ['value_date'] );
 			$e->setDescription ( $r ['description'] );
+			$e->setTags( $r ['tags'] );
 			$e->setAmount ( $r ['amount'] );
 			$e->setType ( $r ['type'] );
 			$e->setTimestamp ( $r ['timestamp'] );
