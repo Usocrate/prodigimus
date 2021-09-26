@@ -636,14 +636,32 @@ class System {
 	 * @param Account $account
 	 * @return AccountingEntry[]
 	 */
-	public function getAccountingEntries(Account $account) {
+	public function getAccountingEntries(Account $account, $criteria=NULL) {
 		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags';
 		$sql .= ' FROM accounting_entry AS e LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
-		$sql .= ' WHERE e.account_id=:account_id';
+		
+		// WHERE
+		$where = array ();
+		$where[] = 'e.account_id=:account_id';
+		
+		if (isset($criteria['descriptionSubstr'])) {
+			$where[] = 'e.description LIKE :description';
+		}
+		
+		if (count ( $where ) > 0) {
+			$sql .= ' WHERE ' . implode ( ' AND ', $where );
+		}
+		
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
+		
 		$statement->bindValue ( ':account_id', $account->getId (), PDO::PARAM_INT );
+		if (isset($criteria['descriptionSubstr'])) {
+			$statement->bindValue ( ':description', '%'.$criteria['descriptionSubstr'].'%', PDO::PARAM_STR);
+		}
+		
 		$statement->execute ();
+		//$statement->debugDumpParams();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
 		foreach ( $rows as $r ) {
