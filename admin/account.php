@@ -48,7 +48,6 @@ $doc_title = $account->getDescription();
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
 		</nav>	
-		<h1></h1>
 
 		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>

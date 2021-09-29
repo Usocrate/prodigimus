@@ -75,6 +75,40 @@ class AccountingEntry {
 		}
 		return NULL;
 	}
+	/**
+	 *
+	 * @since 09/2021
+	 * @return string|NULL
+	 */
+	public function getMonthToDisplay() {
+		$translation = array (
+				'01' => 'janvier',
+				'02' => 'février',
+				'03' => 'mars',
+				'04' => 'avril',
+				'05' => 'mai',
+				'06' => 'juin',
+				'07' => 'juillet',
+				'08' => 'août',
+				'09' => 'septembre',
+				'10' => 'octobre',
+				'11' => 'novembre',
+				'12' => 'décembre'
+		);
+		//var_dump ( $translation );
+		if (isset ( $this->date ) && is_a ( $this->date, 'DateTime' )) {
+			$now = new DateTime ();
+			$index = $this->date->format ( 'm' );
+			//echo 'index:' . $index;
+			$year = $this->date->format ( 'Y' );
+			if (strcmp ( $now->format ( 'Y' ), $year ) != 0) {
+				return isset ( $translation [$index] ) ? ucfirst( $translation [$index] ) . ' ' . $year : $this->date->format ( 'm / Y' );
+			} else {
+				return isset ( $translation [$index] ) ? ucfirst ( $translation [$index] ) : $this->date->format ( 'm' );
+			}
+		}
+		return NULL;
+	}
 	public function setValueDate($input) {
 		$this->value_date = new DateTime ( $input );
 	}
@@ -102,11 +136,11 @@ class AccountingEntry {
 	}
 	public function getHtmlTags() {
 		global $system;
-		
+
 		if (isset ( $this->tags )) {
 			$output = '';
 			foreach ( $this->tags as $t ) {
-				$output .= '<a href="'.$system->getAppliUrl().'/admin/tag.php?label='.urlencode($t).'"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
+				$output .= '<a href="' . $system->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
 			}
 			return $output;
 		}
@@ -145,25 +179,38 @@ class AccountingEntry {
 	 * @param array $collection
 	 * @return string
 	 */
-	public static function collectionToHtml(array $collection, string $caption = NULL) {
+	public static function collectionToHtml(array $collection) {
 		global $system;
 		$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
-		$html = '<table class="table table-sm table-responsive-sm">';
-		if (! empty ( $caption )) {
-			$html .= '<caption>' . ToolBox::toHtml ( $caption ) . '</caption>';
-		}
-		$html .= '<thead><tr><th>Désignation</th><th>Montant</th></tr></thead>';
-		$html .= '<tbody>';
+
+		$html = '';
 
 		foreach ( $collection as $e ) {
-			$html .= '<tr>';
-			$html .= '<td>';
-			$html .= '<small>' . $e->getDateToDisplay () . '</small><br />';
+
+			$date = $e->getDate ();
+			$month = $date->format ( 'M Y' );
+			// var_dump($month);
+
+			if (! isset ( $lastDisplayedMonth ) || strcmp ( $month, $lastDisplayedMonth ) != 0) {
+				if (isset ( $lastDisplayedMonth )) {
+					$html .= '</ul>';
+				}
+				$html .= '<h3>' . $e->getMonthToDisplay () . '</h3>';
+				$html .= '<ul class="list-group">';
+				$lastDisplayedMonth = $month;
+			}
+
+			$html .= '<li class="list-group-item">';
+			
+			$html .= '<div class="d-flex w-100 justify-content-between">';
+			
+			$html .= '<div>';
+			$html .= '<small>'.$date->format ( 'd' ) . ' ' . $e->getMonthToDisplay ().'</small></br>';
 			$html .= '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
 			$html .= '<div>' . $e->getHtmlTags () . '</div>';
-			// $html .= '<div><input class="tag_i" data-account_entry_id="'.$e->getId().'" type="text" value="'.$e->getHtmlTags().'"></input></div>';
-			$html .= '</td>';
-			$html .= '<td>';
+			$html .= '</div>';
+
+			$html .= '<div>';
 			switch ($e->type) {
 				case 'earning' :
 					$html .= '<small>Revenu</small><br/>';
@@ -176,11 +223,12 @@ class AccountingEntry {
 				default :
 					$html .= $e->getAmountToDisplay ( $nf );
 			}
-			$html .= '</td>';
-			$html .= '</tr>';
+			$html .= '</div>';
+			
+			$html .= '</div>';
+			
+			$html .= '</li>';
 		}
-		$html .= '</tbody>';
-		$html .= '</table>';
 		return $html;
 	}
 	/**
