@@ -234,7 +234,7 @@ class AccountingEntry {
 					$html .= $e->getAmountToDisplay ( $nf );
 			}
 			$html .= '</div>';
-			
+
 			$html .= '</div>';
 			
 			$html .= '</li>';

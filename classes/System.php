@@ -879,7 +879,7 @@ class System {
 		}
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		// echo $statement->debugDumpParams();
+		//echo $statement->debugDumpParams();
 		return $rows;
 	}
 	/**
@@ -894,7 +894,8 @@ class System {
 		$criteria = array ();
 		$criteria [] = 't.label=:label';
 		$criteria [] = 'ae.type=\'spending\'';
-		$criteria [] = 't2.label != t.label';
+		$criteria [] = 'STRCMP(t2.label, t.label) != 0';
+		
 		if (! is_null ( $a )) {
 			$criteria [] = 'ae.account_id=:account_id';
 		}
@@ -908,6 +909,7 @@ class System {
 		}
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		//$statement->debugDumpParams();
 		$output = array ();
 		foreach ( $rows as $r ) {
 			$e = new AccountingEntry ();
