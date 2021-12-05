@@ -28,19 +28,22 @@ $doc_title = 'Comptes';
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
-		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
+
+		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
+			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
+			<a class="btn btn-outline-secondary" href="account_edit.php">Déclarer un nouveau compte</a>
+		</div>
+		
 		<?php
 		$accounts = $system->getAccounts ();
 		echo '<div class="list-group">';
 		foreach ( $accounts as $a ) {
 			echo '<div>';
 			echo '<a href="account.php?id=' . $a->id . '" class="list-group-item list-group-item-action">'.ToolBox::toHtml($a->description).'</a>';
-			echo '<a href="account_edit.php?id=' . $a->id . '" >modifier</a>';
 			echo '</div>';
 		}
 		echo '</div>';
 		?>
-		<p><a href="account_edit.php">Nouveau compte</a></p>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>	
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

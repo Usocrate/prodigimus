@@ -35,7 +35,7 @@ if (isset ( $_POST ['cmd'] )) {
 	}
 }
 
-$doc_title = isset ( $account->id ) ? 'Un compte' : 'Nouveau compte';
+$doc_title = isset ( $account->id ) ? 'Edition d\'un compte' : 'Déclaration d\'un nouveau compte';
 ?>
 <!doctype html>
 <html lang="fr">
@@ -49,6 +49,19 @@ $doc_title = isset ( $account->id ) ? 'Un compte' : 'Nouveau compte';
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
+	
+		<nav>
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
+				<?php
+				if (isset($account->id)) {
+					echo '<li class="breadcrumb-item"><a href="account.php?id='.$account->getId().'">Compte</a></li>';
+				}
+				?>
+				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
+			</ol>
+		</nav>
+		
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 	
 		<?php
@@ -71,8 +84,8 @@ $doc_title = isset ( $account->id ) ? 'Un compte' : 'Nouveau compte';
 				<label for="description_i">Description</label>
 				<textarea id="description_i" name="description" class="form-control"><?php echo $account->description ?></textarea>
 			</div>			
+			<a class="btn btn-default" href="account.php?id=<?php echo $account->id ?>">Abandonner</a>
 			<button name="cmd" type="submit" value="register" class="btn btn-primary">Enregistrer</button>
-			<button name="cmd" type="submit" value="cancel"	class="btn btn-secondary">Abandonner</button>
 		</form>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

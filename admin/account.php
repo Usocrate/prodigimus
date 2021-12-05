@@ -45,13 +45,16 @@ $doc_title = $account->getDescription();
 		<nav>
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
-				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
+				<li class="breadcrumb-item active">Compte</li>
 			</ol>
-		</nav>	
+		</nav>
 
 		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
-			<a class="btn btn-outline-secondary" href="accounting_entry_import.php?account_id=<?php echo $account->getId(); ?>">Importer de nouvelles opérations</a>
+			<div>
+				<a class="btn btn-outline-secondary" href="accounting_entry_import.php?account_id=<?php echo $account->getId(); ?>">Importer de nouvelles opérations</a>
+				<a class="btn btn-outline-secondary" href="account_edit.php?id=<?php echo $account->getId(); ?>" >Modifier</a>
+			</div>
 		</div>
 		
 		<?php
@@ -65,7 +68,7 @@ $doc_title = $account->getDescription();
 		?>
 		
 		<div class="d-lg-flex flex-mg-row align-items-center mb-3 mt-3">
-			<h2>Dernières opérations</h2>
+			<h2 class="mt-2">Dernières opérations</h2>
 			<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data" class="d-inline-flex ml-4 mb-3 mt-3">
 				<input name="id" type="hidden" value="<?php echo $account->getId() ?>">
 				<input name="descriptionSubstr" type="text" class="form-control">

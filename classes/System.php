@@ -721,6 +721,30 @@ class System {
 		}
 		return $output;
 	}
+	/**
+	 * @since 12/2021
+	 * @param AccountingEntry $ae
+	 * @return array
+	 */
+	public function getSimilarAccountingEntriesTags(AccountingEntry $ae) {
+		// ex. de motifs PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
+		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
+			$stringToSearchInDescription = '%' . $matches [3] . '%';
+			// print_r($matches);
+		} else {
+			$stringToSearchInDescription = $ae->getDescription ();
+		}
+		
+		$sql = 'SELECT DISTINCT(t.label) FROM accounting_entry AS e';
+		$sql .= ' INNER JOIN tag AS t ON (t.accounting_entry_id = e.id)';
+		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
+		$sql .= ' ORDER BY t.label ASC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
+		$statement->bindValue ( ':description', $stringToSearchInDescription, PDO::PARAM_STR );
+		$statement->execute ();
+		return $statement->fetchAll (PDO::FETCH_COLUMN);
+	}
 	public function getLastAccountingEntryDate(Account $account) {
 		$sql = 'SELECT date FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC LIMIT 1';
 		$statement = $this->getPdo ()->prepare ( $sql );

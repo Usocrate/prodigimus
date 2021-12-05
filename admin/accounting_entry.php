@@ -41,13 +41,18 @@ $doc_title = 'Opération';
 		<nav>
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
-				<li class="breadcrumb-item"><a
-					href="account.php?id=<?php echo $account->getId() ?>"><?php echo ToolBox::toHtml($account->description) ?></a></li>
+				<li class="breadcrumb-item"><a href="account.php?id=<?php echo $account->getId() ?>">Compte</a></li>
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
 		</nav>
 
-		<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small></h1>
+		<header>
+			<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
+				<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small></h1>
+				<a class="btn btn-outline-secondary" href="accounting_entry_tag.php?id=<?php echo $accounting_entry->getId(); ?>">Catégoriser l'opération</a>
+			</div>
+			<p><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->getDescription()) ?></a></p>
+		</header>
 		
 		<?php
 		if (count ( $messages ) > 0) {
@@ -74,14 +79,15 @@ $doc_title = 'Opération';
 		echo "</div>";
 		
 		$tags = $system->getAccountingEntryTags ( $accounting_entry ); 
+		
+		 if (count ( $tags ) > 0) {
+			 echo '<p>';
+			 foreach ( $tags as $t ) {
+				 echo '<a href="' . $system->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
+			 }
+			 echo '</p>';
+		 }
 	
-		?>
-		
-		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
-			<input id="tag_i" type="text" value="<?php echo implode(',',$tags) ?>"></input>
-		</form>
-		
-		<?php 
 		$similarAccountingEntries = $system->getSimilarAccountingEntries ( $accounting_entry );
 		if (count ( $similarAccountingEntries ) > 0) {
 			echo '<h2>Opérations similaires</h2>';
@@ -91,31 +97,5 @@ $doc_title = 'Opération';
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://unpkg.com/@yaireo/tagify"></script>
-	<script	src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-	<script>
-	window.onload = function() {
-		var input = document.getElementById('tag_i');
-		var t = new Tagify(input);
-		t.on('change', function(e){
-	
-			const xhr = new XMLHttpRequest();
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?accounting_entry_id=<?php echo $accounting_entry->getId() ?>';
-			xhr.open('DELETE',url);
-			xhr.send();
-
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
-			if (e.detail.value!==null && e.detail.value.length>0) {
-				var tags = JSON.parse(e.detail.value);
-				for (i=0; i<tags.length; i++) {
-					const xhr2 = new XMLHttpRequest();
-					xhr2.open('POST',url);
-					xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					xhr2.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+tags[i].value);
-				}
-			}
-		});
-	};
-	</script>
 </body>
 </html>

@@ -145,6 +145,9 @@ class AccountingEntry {
 			return $output;
 		}
 	}
+	public function isTagged() {
+		return isset($this->tags) && is_array($this->tags) && count($this->tags)>0;
+	}
 	public function setType($input) {
 		$this->type = $input;
 	}
@@ -195,7 +198,7 @@ class AccountingEntry {
 				if (isset ( $lastDisplayedMonth )) {
 					$html .= '</ul>';
 				}
-				$html .= '<h3>' . $e->getMonthToDisplay () . '</h3>';
+				$html .= '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
 				$html .= '<ul class="list-group">';
 				$lastDisplayedMonth = $month;
 			}
@@ -207,9 +210,16 @@ class AccountingEntry {
 			$html .= '<div>';
 			$html .= '<small>'.$date->format ( 'd' ) . ' ' . $e->getMonthToDisplay ().'</small></br>';
 			$html .= '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
-			$html .= '<div>' . $e->getHtmlTags () . '</div>';
+			
+			if ($e->isTagged()) {
+				$html .= '<div>' . $e->getHtmlTags () . '</div>';
+			} else {
+				if (strcmp($e->type, 'spending')==0) {
+					$html .= '<div><a href="accounting_entry_tag.php?id='.$e->getId().'" class="btn btn-outline-secondary btn-sm mt-1">Catégoriser</a></div>';
+				}
+			}
 			$html .= '</div>';
-
+						
 			$html .= '<div>';
 			switch ($e->type) {
 				case 'earning' :
