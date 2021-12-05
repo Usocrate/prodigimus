@@ -680,27 +680,40 @@ class System {
 		return $output;
 	}
 	/**
-	 *
+	 * @since 12/2021
+	 * @param AccountingEntry $ae
+	 * @return string|NULL
+	 */
+	public function getSimilarityClueToSearchInDescription(AccountingEntry $ae) {
+		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
+			// Paiement par carte bancaire
+			// ex. : PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
+			// print_r($matches);
+			return '%' . $matches [3] . '%';
+		} else {
+			if (preg_match( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
+				// Prélèvement SEPA
+				// ex. : PRLV SEPA FREE TELECOM FHD 995033022 FREE HAUTDEBIT 995033022
+				//print_r($matches);
+				return '%' . $matches [1] . '%';
+			} else {
+				return $ae->getDescription ();
+			}
+		}
+	}
+	/**
 	 * @since 02/2021
 	 * @param AccountingEntry $ae
 	 * @return AccountingEntry[]
 	 */
 	public function getSimilarAccountingEntries(AccountingEntry $ae) {
-		// ex. de motifs PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
-		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
-			$stringToSearchInDescription = '%' . $matches [3] . '%';
-			// print_r($matches);
-		} else {
-			$stringToSearchInDescription = $ae->getDescription ();
-		}
-
 		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags FROM accounting_entry AS e';
 		$sql .= ' LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
 		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $stringToSearchInDescription, PDO::PARAM_STR );
+		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription($ae), PDO::PARAM_STR );
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		// $statement->debugDumpParams();
@@ -727,21 +740,13 @@ class System {
 	 * @return array
 	 */
 	public function getSimilarAccountingEntriesTags(AccountingEntry $ae) {
-		// ex. de motifs PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
-		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
-			$stringToSearchInDescription = '%' . $matches [3] . '%';
-			// print_r($matches);
-		} else {
-			$stringToSearchInDescription = $ae->getDescription ();
-		}
-		
 		$sql = 'SELECT DISTINCT(t.label) FROM accounting_entry AS e';
 		$sql .= ' INNER JOIN tag AS t ON (t.accounting_entry_id = e.id)';
 		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
 		$sql .= ' ORDER BY t.label ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $stringToSearchInDescription, PDO::PARAM_STR );
+		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription($ae), PDO::PARAM_STR );
 		$statement->execute ();
 		return $statement->fetchAll (PDO::FETCH_COLUMN);
 	}

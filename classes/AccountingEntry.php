@@ -208,7 +208,7 @@ class AccountingEntry {
 			
 			$html .= '<div>';
 			$html .= '<small>'.$date->format ( 'd' ) . ' ' . $e->getMonthToDisplay ().'</small></br>';
-			$html .= '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
+			$html .= '<h4><a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a></h4>';
 			
 			if ($e->isTagged()) {
 				$html .= '<div>' . $e->getHtmlTags () . '</div>';

@@ -95,7 +95,9 @@ $doc_title = $_REQUEST ['label'];
 					echo '<div class="d-flex w-100 justify-content-between">';
 					echo '<div>';
 					echo '<small>'.$date->format ( 'd' ) . ' ' . $e->getMonthToDisplay ().'</small></br>';
-					echo '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
+					echo '<h4><a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a></h4>';
+					
+					echo $e->getAmountToDisplay ();
 					
 					if ($e->isTagged()) {
 						echo '<div>' . $e->getHtmlTags () . '</div>';
@@ -103,18 +105,6 @@ $doc_title = $_REQUEST ['label'];
 					echo '</div>';
 					
 					echo '<div>';
-					switch ($e->type) {
-						case 'earning' :
-							echo '<small>Revenu</small><br/>';
-							echo $e->getAmountToDisplay ();
-							break;
-						case 'spending' :
-							echo '<small>Dépense</small><br/>';
-							echo $e->getAmountToDisplay ();
-							break;
-						default :
-							echo $e->getAmountToDisplay ();
-					}
 					echo '</div>';
 					echo '</div>';
 					echo '</li>';
