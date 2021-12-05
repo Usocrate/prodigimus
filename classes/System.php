@@ -885,16 +885,16 @@ class System {
 	/**
 	 *
 	 * @since 09/2021
+	 * @version 12/2021
 	 * @param Account $a
 	 */
 	public function getTagSpendingAccountingEntries($label, Account $a = Null) {
 		$sql = 'SELECT ae.*, GROUP_CONCAT(t2.label ORDER BY t2.label ASC SEPARATOR \',\') AS tags';
 		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
-		$sql .= ' LEFT JOIN tag AS t2 ON (t2.accounting_entry_id = ae.id)';
+		$sql .= ' LEFT JOIN tag AS t2 ON (t2.accounting_entry_id = ae.id AND STRCMP(t2.label, t.label) != 0)';
 		$criteria = array ();
 		$criteria [] = 't.label=:label';
 		$criteria [] = 'ae.type=\'spending\'';
-		$criteria [] = 'STRCMP(t2.label, t.label) != 0';
 		
 		if (! is_null ( $a )) {
 			$criteria [] = 'ae.account_id=:account_id';

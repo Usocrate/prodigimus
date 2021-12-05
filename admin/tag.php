@@ -74,7 +74,51 @@ $doc_title = $_REQUEST ['label'];
 			$entries = $system->getTagSpendingAccountingEntries($_REQUEST ['label']);
 			
 			if (count($entries)>0) {
-				echo AccountingEntry::collectionToHtml($entries);
+				$html = '';
+				
+				foreach ( $entries as $e ) {
+					
+					$date = $e->getDate ();
+					$month = $date->format ( 'M Y' );
+					// var_dump($month);
+					
+					if (! isset ( $lastDisplayedMonth ) || strcmp ( $month, $lastDisplayedMonth ) != 0) {
+						if (isset ( $lastDisplayedMonth )) {
+							echo '</ul>';
+						}
+						echo  '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
+						echo '<ul class="list-group">';
+						$lastDisplayedMonth = $month;
+					}
+					
+					echo '<li class="list-group-item">';
+					echo '<div class="d-flex w-100 justify-content-between">';
+					echo '<div>';
+					echo '<small>'.$date->format ( 'd' ) . ' ' . $e->getMonthToDisplay ().'</small></br>';
+					echo '<a href="' . $system->getAccountingEntryAdminUrl ( $e ) . '">' . ToolBox::toHtml ( $e->description ) . '</a>';
+					
+					if ($e->isTagged()) {
+						echo '<div>' . $e->getHtmlTags () . '</div>';
+					}
+					echo '</div>';
+					
+					echo '<div>';
+					switch ($e->type) {
+						case 'earning' :
+							echo '<small>Revenu</small><br/>';
+							echo $e->getAmountToDisplay ();
+							break;
+						case 'spending' :
+							echo '<small>Dépense</small><br/>';
+							echo $e->getAmountToDisplay ();
+							break;
+						default :
+							echo $e->getAmountToDisplay ();
+					}
+					echo '</div>';
+					echo '</div>';
+					echo '</li>';
+				}
 			} else {
 				echo '<p>Pas d\'opération enregistrée.</p>';
 			}

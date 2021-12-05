@@ -184,7 +184,6 @@ class AccountingEntry {
 	 */
 	public static function collectionToHtml(array $collection) {
 		global $system;
-		$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
 
 		$html = '';
 
@@ -224,14 +223,14 @@ class AccountingEntry {
 			switch ($e->type) {
 				case 'earning' :
 					$html .= '<small>Revenu</small><br/>';
-					$html .= $e->getAmountToDisplay ( $nf );
+					$html .= $e->getAmountToDisplay ();
 					break;
 				case 'spending' :
 					$html .= '<small>Dépense</small><br/>';
-					$html .= $e->getAmountToDisplay ( $nf );
+					$html .= $e->getAmountToDisplay ();
 					break;
 				default :
-					$html .= $e->getAmountToDisplay ( $nf );
+					$html .= $e->getAmountToDisplay ();
 			}
 			$html .= '</div>';
 
