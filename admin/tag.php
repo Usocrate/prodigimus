@@ -74,9 +74,15 @@ $doc_title = $_REQUEST ['label'];
 			$entries = $system->getTagSpendingAccountingEntries($_REQUEST ['label']);
 			
 			if (count($entries)>0) {
-				$html = '';
+				
+				echo '<div class="container-fluid">';
+				echo '<div class="row">';
+				
+				$i=0; // nombre d'items traités
+				$m=0; // nombre de mois traités
 				
 				foreach ( $entries as $e ) {
+					$i++;
 					
 					$date = $e->getDate ();
 					$month = $date->format ( 'M Y' );
@@ -84,10 +90,15 @@ $doc_title = $_REQUEST ['label'];
 					
 					if (! isset ( $lastDisplayedMonth ) || strcmp ( $month, $lastDisplayedMonth ) != 0) {
 						if (isset ( $lastDisplayedMonth )) {
-							echo '</ul>';
+							echo '</ul></div>';  // fermeture de la colonne et bloc
 						}
-						echo  '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
+
+						//if ($m % 3 == 0 && $m>0) echo '</div><div class="row">';
+						
+						echo '<div class="col-lg-6 col-xl-4">';
+						echo '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
 						echo '<ul class="list-group">';
+						$m++;
 						$lastDisplayedMonth = $month;
 					}
 					
@@ -109,6 +120,11 @@ $doc_title = $_REQUEST ['label'];
 					echo '</div>';
 					echo '</li>';
 				}
+				echo '</ul></div>'; // fermeture du dernier bloc
+				
+				echo '</div>'; // fermeture de la dernière ligne
+				echo '</div>'; // fermeture du container
+				
 			} else {
 				echo '<p>Pas d\'opération enregistrée.</p>';
 			}

@@ -186,7 +186,7 @@ class AccountingEntry {
 		global $system;
 
 		$html = '';
-
+		
 		foreach ( $collection as $e ) {
 
 			$date = $e->getDate ();
@@ -197,6 +197,7 @@ class AccountingEntry {
 				if (isset ( $lastDisplayedMonth )) {
 					$html .= '</ul>';
 				}
+				$html .= '<div>';
 				$html .= '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
 				$html .= '<ul class="list-group">';
 				$lastDisplayedMonth = $month;
