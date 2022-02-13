@@ -30,7 +30,7 @@ if (! isset ( $_SESSION ['csvFileImportToComplete'] )) {
 	$_SESSION ['csvFileImportToComplete'] ['file'] = null;
 
 	// le compte concerné par l'importation
-	if (isset ( $_REQUEST ['account_id'] )) {
+	if (array_key_exists('account_id',$_REQUEST)) {
 		$_SESSION ['csvFileImportToComplete'] ['account_id'] = $_REQUEST ['account_id'];
 	} else {
 		header ( 'location:accounts.php' );
@@ -41,7 +41,7 @@ if (! isset ( $_SESSION ['csvFileImportToComplete'] )) {
 	$_SESSION ['csvFileImportToComplete'] ['taskToFullfill'] = 'upload';
 } else {
 	// si le script est lancé sur un autre compte, l'importation en cours est abandonnée
-	if (isset ( $_REQUEST ['account_id'] ) && strcmp ( $_SESSION ['csvFileImportToComplete'] ['account_id'], $_REQUEST ['account_id'] ) != 0) {
+	if (array_key_exists('account_id',$_REQUEST) && strcmp ( $_SESSION ['csvFileImportToComplete'] ['account_id'], $_REQUEST ['account_id'] ) != 0) {
 		unlink ( $_SESSION ['csvFileImportToComplete'] ['file'] ['path'] );
 		$_SESSION ['csvFileImportToComplete'] ['file'] = null;
 		$_SESSION ['csvFileImportToComplete'] ['account_id'] = $_REQUEST ['account_id'];

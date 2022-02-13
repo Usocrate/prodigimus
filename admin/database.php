@@ -14,6 +14,8 @@ if (file_exists ( '../config/host.json' )) {
 }
 
 if (isset ( $_REQUEST ['cmd'] )) {
+	$fb = new UserFeedBack();
+	
 	switch ($_REQUEST ['cmd']) {
 		case 'create' :
 			$system->createDatabase();
@@ -24,6 +26,20 @@ if (isset ( $_REQUEST ['cmd'] )) {
 			$pdo->exec('DELETE FROM accounting_entry');
 			$pdo->exec('ALTER TABLE accounting_entry AUTO_INCREMENT = 1');
 			$pdo->commit();
+			break;
+		case 'revertTodayImportation' :
+			$pdo = $system->getPdo();
+			$result = $pdo->exec('DELETE FROM accounting_entry WHERE DATEDIFF(timestamp,CURDATE())=0');
+			if ($result !== false) {
+				if ($result > 1) {
+					$fb->addSuccessMessage($result.' opérations ont été effacées.');
+				} else if ($result == 1) {
+					$fb->addSuccessMessage(' Une opération a été effacée.');
+				} else {
+					$fb->addSuccessMessage(' Aucune opération n\'aavit été importée aujourd\'hui.');
+				}
+			}
+			break;
 	}
 }
 
@@ -43,12 +59,15 @@ $doc_title = 'La base de données ('.$system->getDbName().')';
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
+		<?php if(isset($fb)) {
+			echo $fb->toHtml();
+		}
+		?>
 		<div class="list-group">
 			<a href="database.php?cmd=create" class="list-group-item list-group-item-action">Recréer la base de données</a>
 			<a href="database.php?cmd=reinitAccountingEntries" class="list-group-item list-group-item-action">Réinitialiser le stockage des opérations de compte</a>
+			<a href="database.php?cmd=revertTodayImportation" class="list-group-item list-group-item-action">Annuler les importations d'opérations du jour</a>
 		</div>
 	</div>
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>	
-	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
