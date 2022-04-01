@@ -18,11 +18,23 @@ $messages = array ();
 if (! empty ( $_REQUEST ['id'] )) {
 	$accounting_entry = $system->getAccountingEntry ( $_REQUEST ['id'] );
 	$account = $system->getAccount ( $accounting_entry->getAccountId () );
+	$tags = $system->getAccountingEntryTags ( $accounting_entry );
 	
-	if (isset($_POST['tagsToAdd'])) {
-		foreach ($_POST['tagsToAdd'] as $t) {
+	if (isset($_POST['tagsToKeep'])) {
+		
+		$tagsToRemove = array_diff($tags, $_POST['tagsToKeep']);
+
+		$tagsToAdd = array_diff($_POST['tagsToKeep'], $tags);
+		
+		foreach ($tagsToRemove as $t) {
+			$system->untagAccountingEntry($accounting_entry, $t);
+		}
+
+		foreach ($tagsToAdd as $t) {
 			$system->tagAccountingEntry($accounting_entry, $t);
 		}
+		header ( 'Location:accounting_entry.php?id='.$accounting_entry->getId() );
+		exit ();
 	}
 	
 } else {
@@ -80,75 +92,37 @@ $doc_title = 'Catégoriser une opération';
 		echo '</p>';
 		echo "</div>";
 
-		$tags = $system->getAccountingEntryTags ( $accounting_entry );
 		?>
 		<h2 class="mt-2">Catégories</h2>
-		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post"	enctype="multipart/form-data">
-			<input id="tag_i" type="text" value="<?php echo implode(',',$tags) ?>"></input>
-		</form>
 				
-		<?php 
-		/*
-		if (count ( $tags ) > 0) {
-			echo '<p>';
-			foreach ( $tags as $t ) {
-				echo '<a href="' . $system->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
-			}
-			echo '</p>';
-		}
-		*/
-
+		<?php
+		$i = 0;
+		
+		$knownTags = $system->getTags();
 		$suggestedTags = $system->getSimilarAccountingEntriesTags ( $accounting_entry );
-		$tagsToDisplay = array_diff ( $suggestedTags, $tags );
-
-		if (count ( $tagsToDisplay ) > 0) {
-			echo '<h2 class="mt-2">Suggestions</h2>';
-			echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">';
-			echo '<input name="id" type="hidden" value="'.$accounting_entry->getId().'">';
-			$i = 0;
-			foreach ( $tagsToDisplay as $t ) {
-				echo '<div class="form-group">';
-				echo '<div class="form-check">';
-				echo '<input id="i'.$i.'" name="tagsToAdd[]" class="form-check-input" type="checkbox" value="'.ToolBox::toHtml ( $t ).'" checked>';
-				echo '<label class="form-check-label" for="i'.$i.'">'.ToolBox::toHtml ( $t ).'</label>';
-				echo '</div>';
-				echo '</div>';
-				$i++;
+				
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">';
+		echo '<input name="id" type="hidden" value="'.$accounting_entry->getId().'">';
+		foreach ($knownTags as $t) {
+			echo '<div class="form-group">';
+			echo '<div class="form-check">';
+			if (in_array($t, $tags)) {
+				echo '<input id="i'.$i.'" name="tagsToKeep[]" class="form-check-input" type="checkbox" value="'.ToolBox::toHtml ($t).'" checked>';
+			} else {
+				echo '<input id="i'.$i.'" name="tagsToKeep[]" class="form-check-input" type="checkbox" value="'.ToolBox::toHtml ($t).'">';
 			}
-			echo '<button type="submit" class="btn btn-secondary">ajouter</button>';
-			echo '</form>';
+			echo '<label class="form-check-label" for="i'.$i.'"><a href="tag.php?label='.ToolBox::toHtml ( $t).'">'.ToolBox::toHtml ( $t).'</a>';
+			if (in_array($t, $suggestedTags)) {
+				echo ' <span class="badge badge-info">suggestion</span>';
+			}
+			echo '</label>';
+			echo '</div>';
+			echo '</div>';
+			$i++;
 		}
-
+		echo '<button type="submit" class="btn btn-secondary">enregistrer</button>';
+		echo '</form>';
 		?>
 	</div>
-	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="https://unpkg.com/@yaireo/tagify"></script>
-	<script	src="https://unpkg.com/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-	<script>
-	window.onload = function() {
-		var input = document.getElementById('tag_i');
-		var t = new Tagify(input);
-		t.on('change', function(e){
-	
-			const xhr = new XMLHttpRequest();
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?accounting_entry_id=<?php echo $accounting_entry->getId() ?>';
-			xhr.open('DELETE',url);
-			xhr.send();
-
-			var url = '<?php echo $system->getAppliUrl() ?>/api/tags.php?';
-			if (e.detail.value!==null && e.detail.value.length>0) {
-				var tags = JSON.parse(e.detail.value);
-				for (i=0; i<tags.length; i++) {
-					const xhr2 = new XMLHttpRequest();
-					xhr2.open('POST',url);
-					xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-					xhr2.send('accounting_entry_id=<?php echo $accounting_entry->getId() ?>&label='+tags[i].value);
-				}
-			}
-		});
-	};
-	</script>
 </body>
 </html>

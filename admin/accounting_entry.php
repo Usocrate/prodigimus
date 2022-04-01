@@ -49,7 +49,7 @@ $doc_title = 'Opération';
 		<header>
 			<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 				<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small></h1>
-				<a class="btn btn-outline-secondary" href="accounting_entry_tag.php?id=<?php echo $accounting_entry->getId(); ?>">Catégoriser l'opération</a>
+				<a class="btn btn-outline-secondary" href="accounting_entry_tag.php?id=<?php echo $accounting_entry->getId(); ?>">Catégoriser</a>
 			</div>
 			<p><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->getDescription()) ?></a></p>
 		</header>

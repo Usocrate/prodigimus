@@ -960,5 +960,14 @@ class System {
 		}
 		return $output;
 	}
+	/**
+	 * @since 04/2022
+	 */
+	public function getTags() {
+		$sql = 'SELECT DISTINCT label FROM tag ORDER BY label ASC';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->execute ();
+		return $statement->fetchAll(PDO::FETCH_COLUMN);
+	}
 }
 ?>
