@@ -20,9 +20,9 @@ if (! empty ( $_REQUEST ['id'] )) {
 		//$criteria['descriptionSubstr'] = ToolBox::formatUserPost($_POST['descriptionSubstr']);
 		$criteria['descriptionSubstr'] = $_POST['descriptionSubstr'];
 	}
-	if (isset($_POST['tagLessOnly'])) {
-		if ($_POST['tagLessOnly']==1) {
-			$criteria['tagLessOnly'] = true;
+	if (isset($_POST['tagLessSpendingOnly'])) {
+		if ($_POST['tagLessSpendingOnly']==1) {
+			$criteria['tagLessSpendingOnly'] = true;
 		}
 	}
 	$entries = $system->getAccountingEntries($account, $criteria);
@@ -87,13 +87,13 @@ $doc_title = $account->getDescription();
 
 				<div class="form-check form-check-inline ml-4 mr-4">
 				<?php
-				if (isset($criteria['tagLessOnly']) && $criteria['tagLessOnly']===true) {
-					echo '<input name="tagLessOnly" id="tagLessOnly_i" class="form-check-input" type="checkbox" value="1" checked>';
+				if (isset($criteria['tagLessSpendingOnly']) && $criteria['tagLessSpendingOnly']===true) {
+					echo '<input name="tagLessSpendingOnly" id="tagLessSpendingOnly_i" class="form-check-input" type="checkbox" value="1" checked>';
 				} else {
-					echo '<input name="tagLessOnly" id="tagLessOnly_i" class="form-check-input" type="checkbox" value="1">';
+					echo '<input name="tagLessSpendingOnly" id="tagLessSpendingOnly_i" class="form-check-input" type="checkbox" value="1">';
 				}
 				?>
-				<label class="form-check-label" for="tagLessOnly_i">à&nbsp;catégoriser</label>
+				<label class="form-check-label" for="tagLessSpendingOnly_i">à&nbsp;catégoriser</label>
 				</div>				
 
 				<button class="btn btn-secondary ml-3">Chercher</button>

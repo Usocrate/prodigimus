@@ -647,6 +647,12 @@ class System {
 		if (isset($criteria['descriptionSubstr'])) {
 			$where[] = 'e.description LIKE :description';
 		}
+		
+		if (isset($criteria['tagLessSpendingOnly'])) {
+			if ($criteria['tagLessSpendingOnly']===true) {
+				$where[] = "type = :type";
+			}
+		}
 
 		if (count ( $where ) > 0) {
 			$sql .= ' WHERE ' . implode ( ' AND ', $where );
@@ -656,8 +662,8 @@ class System {
 		
 		$having = array ();
 		
-		if (isset($criteria['tagLessOnly'])) {
-			if ($criteria['tagLessOnly']===true) {
+		if (isset($criteria['tagLessSpendingOnly'])) {
+			if ($criteria['tagLessSpendingOnly']===true) {
 				$having[] = 'tags IS NULL';
 			}
 		}
@@ -671,8 +677,15 @@ class System {
 		$statement = $this->getPdo ()->prepare ( $sql );
 		
 		$statement->bindValue ( ':account_id', $account->getId (), PDO::PARAM_INT );
+		
 		if (isset($criteria['descriptionSubstr'])) {
 			$statement->bindValue ( ':description', '%'.$criteria['descriptionSubstr'].'%', PDO::PARAM_STR);
+		}
+		
+		if (isset($criteria['tagLessSpendingOnly'])) {
+			if ($criteria['tagLessSpendingOnly']===true) {
+				$statement->bindValue ( ':type', 'spending', PDO::PARAM_STR);
+			}
 		}
 		
 		$statement->execute ();
