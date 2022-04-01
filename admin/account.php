@@ -20,6 +20,11 @@ if (! empty ( $_REQUEST ['id'] )) {
 		//$criteria['descriptionSubstr'] = ToolBox::formatUserPost($_POST['descriptionSubstr']);
 		$criteria['descriptionSubstr'] = $_POST['descriptionSubstr'];
 	}
+	if (isset($_POST['tagLessOnly'])) {
+		if ($_POST['tagLessOnly']==1) {
+			$criteria['tagLessOnly'] = true;
+		}
+	}
 	$entries = $system->getAccountingEntries($account, $criteria);
 } else {
 	header ( 'Location:accounts.php' );
@@ -48,11 +53,11 @@ $doc_title = $account->getDescription();
 				<li class="breadcrumb-item active">Compte</li>
 			</ol>
 		</nav>
-
+	
 		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
 			<div>
-				<a class="btn btn-outline-secondary" href="accounting_entry_import.php?account_id=<?php echo $account->getId(); ?>">Importer de nouvelles opérations</a>
+				<a class="btn btn-outline-secondary" href="accounting_entry_import.php?account_id=<?php echo $account->getId(); ?>">Importer des opérations</a>
 				<a class="btn btn-outline-secondary" href="account_edit.php?id=<?php echo $account->getId(); ?>" >Modifier</a>
 			</div>
 		</div>
@@ -71,7 +76,26 @@ $doc_title = $account->getDescription();
 			<h2 class="mt-2">Dernières opérations</h2>
 			<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data" class="d-inline-flex ml-4 mb-3 mt-3">
 				<input name="id" type="hidden" value="<?php echo $account->getId() ?>">
-				<input name="descriptionSubstr" type="text" class="form-control">
+				
+				<?php
+				if (isset($criteria['descriptionSubstr'])) {
+					echo '<input name="descriptionSubstr" type="text" class="form-control" value="'.$criteria['descriptionSubstr'].'">';
+				} else {
+					echo '<input name="descriptionSubstr" type="text" class="form-control">';
+				}
+				?>
+
+				<div class="form-check form-check-inline ml-4 mr-4">
+				<?php
+				if (isset($criteria['tagLessOnly']) && $criteria['tagLessOnly']===true) {
+					echo '<input name="tagLessOnly" id="tagLessOnly_i" class="form-check-input" type="checkbox" value="1" checked>';
+				} else {
+					echo '<input name="tagLessOnly" id="tagLessOnly_i" class="form-check-input" type="checkbox" value="1">';
+				}
+				?>
+				<label class="form-check-label" for="tagLessOnly_i">à&nbsp;catégoriser</label>
+				</div>				
+
 				<button class="btn btn-secondary ml-3">Chercher</button>
 			</form>
 		</div>
@@ -83,9 +107,6 @@ $doc_title = $account->getDescription();
 			echo '<p>Pas d\'opération enregistrée.</p>';
 		}
 		?>
-
-	 </div>
-	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	</div>
 </body>
 </html>

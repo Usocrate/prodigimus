@@ -96,14 +96,12 @@ class ToolBox {
 		return str_replace($search, $replace, $input);
 	}
 	/**
-	 * @version 12/2020
-	 * @since 06/2012
-	 */	
-	public static function toHtml($input)
-	{
-		$input = htmlentities($input, ENT_HTML5);
-		return nl2br($input);
-	}	
+	 * @version 02/2022
+	 */
+	public static function toHtml($input) {
+		return is_string($input) ? htmlentities ( $input, ENT_QUOTES | ENT_HTML5, 'UTF-8' ):'';
+	}
+	
 	public static function sans_accent($chaine) {
 		$accent  ="ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ";
 		$noaccent="aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyyby";

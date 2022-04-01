@@ -632,7 +632,7 @@ class System {
 	/**
 	 *
 	 * @since 01/2021
-	 * @version 09/2021
+	 * @version 04/2022
 	 * @param Account $account
 	 * @return AccountingEntry[]
 	 */
@@ -647,12 +647,27 @@ class System {
 		if (isset($criteria['descriptionSubstr'])) {
 			$where[] = 'e.description LIKE :description';
 		}
-		
+
 		if (count ( $where ) > 0) {
 			$sql .= ' WHERE ' . implode ( ' AND ', $where );
 		}
 		
-		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
+		$sql .= ' GROUP BY e.id';
+		
+		$having = array ();
+		
+		if (isset($criteria['tagLessOnly'])) {
+			if ($criteria['tagLessOnly']===true) {
+				$having[] = 'tags IS NULL';
+			}
+		}
+		
+		if (count ( $having ) > 0) {
+			$sql .= ' HAVING ' . implode ( ' AND ', $having );
+		}
+		
+		$sql .= ' ORDER BY e.date DESC';
+		
 		$statement = $this->getPdo ()->prepare ( $sql );
 		
 		$statement->bindValue ( ':account_id', $account->getId (), PDO::PARAM_INT );
@@ -661,7 +676,8 @@ class System {
 		}
 		
 		$statement->execute ();
-		//$statement->debugDumpParams();
+		//echo $statement->debugDumpParams();
+		
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
 		foreach ( $rows as $r ) {
