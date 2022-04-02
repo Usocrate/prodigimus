@@ -101,25 +101,27 @@ $doc_title = 'Catégoriser une opération';
 		$knownTags = $system->getTags();
 		$suggestedTags = $system->getSimilarAccountingEntriesTags ( $accounting_entry );
 				
-		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post">';
+		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post" class="mt-3 mb-3">';
 		echo '<input name="id" type="hidden" value="'.$accounting_entry->getId().'">';
+		echo '<div class="d-flex flex-wrap">';
 		foreach ($knownTags as $t) {
-			echo '<div class="form-group">';
+			echo '<div class="form-group mr-4">';
 			echo '<div class="form-check">';
-			if (in_array($t, $tags)) {
+			if (in_array($t, $tags) || in_array($t, $suggestedTags)) {
 				echo '<input id="i'.$i.'" name="tagsToKeep[]" class="form-check-input" type="checkbox" value="'.ToolBox::toHtml ($t).'" checked>';
 			} else {
 				echo '<input id="i'.$i.'" name="tagsToKeep[]" class="form-check-input" type="checkbox" value="'.ToolBox::toHtml ($t).'">';
 			}
 			echo '<label class="form-check-label" for="i'.$i.'"><a href="tag.php?label='.ToolBox::toHtml ( $t).'">'.ToolBox::toHtml ( $t).'</a>';
-			if (in_array($t, $suggestedTags)) {
-				echo ' <span class="badge badge-info">suggestion</span>';
+			if (in_array($t, $suggestedTags) && !in_array($t, $tags)) {
+				echo ' <span class="badge badge-warning">suggestion</span>';
 			}
 			echo '</label>';
 			echo '</div>';
 			echo '</div>';
 			$i++;
 		}
+		echo '</div>';
 		echo '<button type="submit" class="btn btn-secondary">enregistrer</button>';
 		echo '</form>';
 		?>

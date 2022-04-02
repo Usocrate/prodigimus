@@ -847,12 +847,7 @@ class System {
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
 		$statement->execute ();
-		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		$output = array ();
-		foreach ( $rows as $r ) {
-			$output [] = $r ['label'];
-		}
-		return $output;
+		return $statement->fetchAll ( PDO::FETCH_COLUMN );
 	}
 	/**
 	 *
@@ -967,7 +962,8 @@ class System {
 		$sql = 'SELECT DISTINCT label FROM tag ORDER BY label ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->execute ();
-		return $statement->fetchAll(PDO::FETCH_COLUMN);
+		$tags = $statement->fetchAll(PDO::FETCH_COLUMN);
+		return array_map('ucfirst', $tags);
 	}
 }
 ?>
