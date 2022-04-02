@@ -31,7 +31,9 @@ if (! empty ( $_REQUEST ['id'] )) {
 		}
 
 		foreach ($tagsToAdd as $t) {
-			$system->tagAccountingEntry($accounting_entry, $t);
+			if (!empty($t)) {
+				$system->tagAccountingEntry($accounting_entry, $t);
+			}
 		}
 		header ( 'Location:accounting_entry.php?id='.$accounting_entry->getId() );
 		exit ();
@@ -122,6 +124,7 @@ $doc_title = 'Catégoriser une opération';
 			$i++;
 		}
 		echo '</div>';
+		echo '<div class="form-group"><label for="newtag_i">Nouvelle catégorie</label><input name="tagsToKeep[]" id="newtag_i" type="text" class="form-control"></input></div>';
 		echo '<button type="submit" class="btn btn-secondary">enregistrer</button>';
 		echo '</form>';
 		?>
