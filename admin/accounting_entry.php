@@ -127,9 +127,15 @@ $doc_title = 'Opération';
 				
 				echo $e->getAmountToDisplay ();
 				
+				
 				if ($e->isTagged()) {
 					echo '<div>' . $e->getHtmlTags () . '</div>';
+				} else {
+					if (strcmp($e->type, 'spending')==0) {
+						echo '<div><a href="accounting_entry_tag.php?id='.$e->getId().'" class="btn btn-outline-secondary btn-sm mt-1">Catégoriser</a></div>';
+					}
 				}
+				
 				echo '</div>';
 				
 				echo '<div>';
