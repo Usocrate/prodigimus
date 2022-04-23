@@ -48,14 +48,13 @@ $doc_title = $_REQUEST ['label'];
 		<canvas id="chartCanvas" style="margin:2em 0; max-height:320px; min-height:200px"></canvas>
 		
 		<?php 
-			$rows = $system->getTagSpendingStats($_REQUEST ['label']);
-			
-			$spendings = array();
+			$spendings = $system->getTagSpendingStats($_REQUEST ['label']);
 			$cumulativeSpendings = array();
 			
-			foreach ($rows as $row ) {
-				$spendings[$row['year']][$row['month']] = $row['amount'];
-				$cumulativeSpendings[$row['year']][$row['month']] = $row['month'] > 1 ? $row['amount'] + $cumulativeSpendings[$row['year']][$row['month']-1] : $row['amount'];
+			foreach ($spendings as $year => $monthAmounts ) {
+				foreach ($monthAmounts as $month => $amount ) {
+					$cumulativeSpendings[$year][$month] = $month > 1 ? $amount + $cumulativeSpendings[$year][$month-1] : $amount;
+				}
 			}
 		
 			echo '<div class="table-responsive">';

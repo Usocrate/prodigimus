@@ -884,9 +884,7 @@ class System {
 		return $statement->execute () ? 'requête OK' : 'requête KO';
 	}
 	/**
-	 *
 	 * @since 09/2021
-	 * @param Account $a
 	 */
 	public function getTagSpendingStats($label, Account $a = Null) {
 		$sql = 'SELECT SUM(ae.amount) AS amount, YEAR(ae.date) AS year, MONTH(ae.date) AS month';
@@ -907,9 +905,20 @@ class System {
 			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
 		}
 		$statement->execute ();
-		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
+		
+		$output = array();
+		
+		foreach ($statement->fetchAll ( PDO::FETCH_ASSOC ) as $row ) {
+			
+			if (!isset($output[$row['year']])) {
+				$output[$row['year']] = $row['year'] == date('Y') ? array_fill(1, date('n'), null) : array_fill(1, 12, null);
+			}
+			
+			$output[$row['year']][$row['month']] = $row['amount'];
+		}
+		
 		//echo $statement->debugDumpParams();
-		return $rows;
+		return $output;
 	}
 	/**
 	 *
