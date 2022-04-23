@@ -67,7 +67,7 @@ $doc_title = $_REQUEST ['label'];
 				echo '<tr>';
 				echo '<th>'.$year.'</th>';
 				for ($i=1; $i<13; $i++) {
-					echo isset($months[$i]) ? '<td>'.$nf->formatCurrency ( $months[$i], 'EUR' ).'</td>' : '<td></td>';
+					echo isset($months[$i]) ? '<td><a href="#m'.$year.$i.'">'.$nf->formatCurrency ( $months[$i], 'EUR' ).'</a></td>' : '<td></td>';
 				}
 				echo '</tr>';
 			}
@@ -101,7 +101,7 @@ $doc_title = $_REQUEST ['label'];
 						//if ($m % 3 == 0 && $m>0) echo '</div><div class="row">';
 						
 						echo '<div class="col-lg-6 col-xl-4">';
-						echo '<h3 class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
+						echo '<h3 id="m'.$date->format('Yn').'" class="mt-3">' . $e->getMonthToDisplay () . '</h3>';
 						echo '<ul class="list-group">';
 						$m++;
 						$lastDisplayedMonth = $month;
