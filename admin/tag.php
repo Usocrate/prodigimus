@@ -145,7 +145,7 @@ $doc_title = $_REQUEST ['label'];
 		    {
 	            label: 'Dépenses cumulées cette année',
 	            data: [<?php echo implode(',', $cumulativeSpendings[date('Y')]) ?>],
-	            backgroundColor: '<?php echo ToolBox::hex2rgba($system->getAppliThemeColor(),0.8) ?>',
+	            backgroundColor: '<?php echo ToolBox::hex2rgba($system->getAppliThemeColor(),0.7) ?>',
 	            fill:true
 	        },
 		    {
