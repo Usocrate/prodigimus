@@ -893,7 +893,7 @@ class System {
 		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
 		$criteria = array ();
 		$criteria [] = 't.label=:label';
-		$criteria [] = '(YEAR(ae.date) = YEAR(NOW()) OR YEAR(ae.date) = YEAR(NOW())-1)';
+		$criteria [] = '(YEAR(ae.date) > YEAR(NOW())-2)';
 		$criteria [] = 'ae.type=\'spending\'';
 		if (! is_null ( $a )) {
 			$criteria [] = 'ae.account_id=:account_id';

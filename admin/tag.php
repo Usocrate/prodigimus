@@ -32,6 +32,7 @@ $doc_title = $_REQUEST ['label'];
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 </head>
 <body>
 	<?php include 'navbar.inc.php'; ?>
@@ -43,22 +44,27 @@ $doc_title = $_REQUEST ['label'];
 			</ol>
 		</nav>	
 		<h1><?php echo ucfirst(ToolBox::toHtml($doc_title)); ?></h1>
+		
+		<canvas id="chartCanvas" style="margin:2em 0; max-height:320px; min-height:200px"></canvas>
+		
 		<?php 
 			$rows = $system->getTagSpendingStats($_REQUEST ['label']);
 			
-			$datatable = array();
-			foreach ($rows as $row ) {
-				$datatable[$row['year']][$row['month']] = $row['amount'];
-			}
-			//var_dump($datatable);
+			$spendings = array();
+			$cumulativeSpendings = array();
 			
-			//*
+			foreach ($rows as $row ) {
+				$spendings[$row['year']][$row['month']] = $row['amount'];
+				$cumulativeSpendings[$row['year']][$row['month']] = $row['month'] > 1 ? $row['amount'] + $cumulativeSpendings[$row['year']][$row['month']-1] : $row['amount'];
+			}
+		
+			echo '<div class="table-responsive">';
 			echo '<table class="table">';
 			echo '<tr><th>Année</th><th>Jan.</th><th>Fév.</th><th>Mars.</th><th>Avr.</th><th>Mai</th><th>Juin</th><th>Juil.</th><th>Août</th><th>Sept.</th><th>Oct.</th><th>Nov.</th><th>Déc.</th></tr>';
 			
 			$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
 			
-			foreach ($datatable as $year=>$months) {
+			foreach ($spendings as $year=>$months) {
 				echo '<tr>';
 				echo '<th>'.$year.'</th>';
 				for ($i=1; $i<13; $i++) {
@@ -67,9 +73,9 @@ $doc_title = $_REQUEST ['label'];
 				echo '</tr>';
 			}
 			echo '</table>';
-			//*/
+			echo '</div>';
 		?>
-		<h2>Les dépenses</h2>
+		<h2>Toutes les dépenses</h2>
 		<?php 
 			$entries = $system->getTagSpendingAccountingEntries($_REQUEST ['label']);
 			
@@ -130,5 +136,34 @@ $doc_title = $_REQUEST ['label'];
 			}
 		?>
 	</div>
+	<script>
+	const ctx = document.getElementById('chartCanvas');
+	const myChart = new Chart(ctx, {
+	    type: 'line',
+	    data: {
+	        labels: ['Jan.', 'Fév.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
+	        datasets: [
+		    {
+	            label: 'Dépenses cumulées cette année',
+	            data: [<?php echo implode(',', $cumulativeSpendings[date('Y')]) ?>],
+	            backgroundColor: '<?php echo ToolBox::hex2rgba($system->getAppliThemeColor(),0.8) ?>',
+	            fill:true
+	        },
+		    {
+	            label: 'L\'année dernière',
+	            data: [<?php echo implode(',', $cumulativeSpendings[date('Y')-1]) ?>],
+	            fill:true
+            },
+	        ]
+	    },
+	    options: {
+	        scales: {
+	            y: {
+	                beginAtZero: true
+	            }
+	        }
+	    }
+	});
+	</script>
 </body>
 </html>
