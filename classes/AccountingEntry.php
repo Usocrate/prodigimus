@@ -9,6 +9,7 @@ class AccountingEntry {
 	public $type;
 	public $amount;
 	public $timestamp;
+	
 	public function __construct() {
 	}
 	public function setId($input) {

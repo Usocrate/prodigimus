@@ -3,8 +3,9 @@
  * @package usocrate.prodigimus
  * @author Florent Chanavat
  */
-// namespace classes;
+
 class System {
+	
 	private $db_host;
 	private $db_name;
 	private $db_user;
@@ -16,6 +17,9 @@ class System {
 	private $appli_theme_color;
 	private $appli_background_color;
 	private $dir_path;
+	
+	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante. 
+	
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
@@ -633,64 +637,64 @@ class System {
 	 *
 	 * @since 01/2021
 	 * @version 04/2022
-	 * @param Account $account
-	 * @return AccountingEntry[]
 	 */
-	public function getAccountingEntries(Account $account, $criteria=NULL) {
+	public function getAccountingEntries(Account $account, $criteria = NULL) {
 		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags';
 		$sql .= ' FROM accounting_entry AS e LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
-		
+
 		// WHERE
 		$where = array ();
-		$where[] = 'e.account_id=:account_id';
-		
-		if (isset($criteria['descriptionSubstr'])) {
-			$where[] = 'e.description LIKE :description';
+		$where [] = 'e.account_id=:account_id';
+		$where [] = '(YEAR(e.date) > YEAR(NOW())-:timescope)';
+
+		if (isset ( $criteria ['descriptionSubstr'] )) {
+			$where [] = 'e.description LIKE :description';
 		}
-		
-		if (isset($criteria['tagLessSpendingOnly'])) {
-			if ($criteria['tagLessSpendingOnly']===true) {
-				$where[] = "type = :type";
+
+		if (isset ( $criteria ['tagLessSpendingOnly'] )) {
+			if ($criteria ['tagLessSpendingOnly'] === true) {
+				$where [] = "type = :type";
 			}
 		}
 
 		if (count ( $where ) > 0) {
 			$sql .= ' WHERE ' . implode ( ' AND ', $where );
 		}
-		
+
 		$sql .= ' GROUP BY e.id';
-		
+
 		$having = array ();
-		
-		if (isset($criteria['tagLessSpendingOnly'])) {
-			if ($criteria['tagLessSpendingOnly']===true) {
-				$having[] = 'tags IS NULL';
+
+		if (isset ( $criteria ['tagLessSpendingOnly'] )) {
+			if ($criteria ['tagLessSpendingOnly'] === true) {
+				$having [] = 'tags IS NULL';
 			}
 		}
-		
+
 		if (count ( $having ) > 0) {
 			$sql .= ' HAVING ' . implode ( ' AND ', $having );
 		}
-		
+
 		$sql .= ' ORDER BY e.date DESC';
-		
+
 		$statement = $this->getPdo ()->prepare ( $sql );
-		
+
 		$statement->bindValue ( ':account_id', $account->getId (), PDO::PARAM_INT );
-		
-		if (isset($criteria['descriptionSubstr'])) {
-			$statement->bindValue ( ':description', '%'.$criteria['descriptionSubstr'].'%', PDO::PARAM_STR);
+		$statement->bindValue ( ':timescope', self::TIMESCOPE, PDO::PARAM_INT );
+
+		if (isset ( $criteria ['descriptionSubstr'] )) {
+			$statement->bindValue ( ':description', '%' . $criteria ['descriptionSubstr'] . '%', PDO::PARAM_STR );
 		}
-		
-		if (isset($criteria['tagLessSpendingOnly'])) {
-			if ($criteria['tagLessSpendingOnly']===true) {
-				$statement->bindValue ( ':type', 'spending', PDO::PARAM_STR);
+
+		if (isset ( $criteria ['tagLessSpendingOnly'] )) {
+			if ($criteria ['tagLessSpendingOnly'] === true) {
+				$statement->bindValue ( ':type', 'spending', PDO::PARAM_STR );
 			}
 		}
-		
+
 		$statement->execute ();
-		//echo $statement->debugDumpParams();
-		
+		// echo $statement->debugDumpParams();
+
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		$output = array ();
 		foreach ( $rows as $r ) {
@@ -709,6 +713,7 @@ class System {
 		return $output;
 	}
 	/**
+	 *
 	 * @since 12/2021
 	 * @param AccountingEntry $ae
 	 * @return string|NULL
@@ -720,10 +725,10 @@ class System {
 			// print_r($matches);
 			return '%' . $matches [3] . '%';
 		} else {
-			if (preg_match( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
+			if (preg_match ( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
 				// Prélèvement SEPA
 				// ex. : PRLV SEPA FREE TELECOM FHD 995033022 FREE HAUTDEBIT 995033022
-				//print_r($matches);
+				// print_r($matches);
 				return '%' . $matches [1] . '%';
 			} else {
 				return $ae->getDescription ();
@@ -731,6 +736,7 @@ class System {
 		}
 	}
 	/**
+	 *
 	 * @since 02/2021
 	 * @param AccountingEntry $ae
 	 * @return AccountingEntry[]
@@ -740,9 +746,10 @@ class System {
 		$sql .= ' LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
 		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
+		
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription($ae), PDO::PARAM_STR );
+		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription ( $ae ), PDO::PARAM_STR );
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
 		// $statement->debugDumpParams();
@@ -764,6 +771,7 @@ class System {
 		return $output;
 	}
 	/**
+	 *
 	 * @since 12/2021
 	 * @param AccountingEntry $ae
 	 * @return array
@@ -775,9 +783,9 @@ class System {
 		$sql .= ' ORDER BY t.label ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription($ae), PDO::PARAM_STR );
+		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription ( $ae ), PDO::PARAM_STR );
 		$statement->execute ();
-		return $statement->fetchAll (PDO::FETCH_COLUMN);
+		return $statement->fetchAll ( PDO::FETCH_COLUMN );
 	}
 	public function getLastAccountingEntryDate(Account $account) {
 		$sql = 'SELECT date FROM accounting_entry WHERE account_id=:account_id ORDER BY date DESC LIMIT 1';
@@ -860,7 +868,7 @@ class System {
 		$sql = 'INSERT INTO tag SET accounting_entry_id=:ae_id, label=:label';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':ae_id', $ae->getId (), PDO::PARAM_INT );
-		$statement->bindValue ( ':label', ucfirst($label), PDO::PARAM_STR );
+		$statement->bindValue ( ':label', ucfirst ( $label ), PDO::PARAM_STR );
 		return $statement->execute ();
 	}
 	/**
@@ -885,69 +893,74 @@ class System {
 	}
 	/**
 	 * @since 09/2021
+	 * @version 04/2022
 	 */
 	public function getTagSpendingStats($label, Account $a = Null) {
 		$sql = 'SELECT SUM(ae.amount) AS amount, YEAR(ae.date) AS year, MONTH(ae.date) AS month';
 		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
-		$criteria = array ();
-		$criteria [] = 't.label=:label';
-		$criteria [] = '(YEAR(ae.date) > YEAR(NOW())-2)';
-		$criteria [] = 'ae.type=\'spending\'';
+
+		$where = array ();
+		$where [] = 't.label=:label';
+		$where [] = '(YEAR(ae.date) > YEAR(NOW())-:timescope)';
+		$where [] = 'ae.type=\'spending\'';
 		if (! is_null ( $a )) {
-			$criteria [] = 'ae.account_id=:account_id';
+			$where [] = 'ae.account_id=:account_id';
 		}
-		$sql .= ' WHERE ' . implode ( ' AND ', $criteria );
+
+		$sql .= ' WHERE ' . implode ( ' AND ', $where );
 		$sql .= ' GROUP BY YEAR(ae.date), MONTH(ae.date)';
 		$sql .= ' ORDER BY YEAR(ae.date) DESC, MONTH(ae.date) ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
+		
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
+		$statement->bindValue ( ':timescope', self::TIMESCOPE, PDO::PARAM_INT );
+		
 		if (! is_null ( $a )) {
 			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
 		}
+		
 		$statement->execute ();
-		
-		$output = array();
-		
-		foreach ($statement->fetchAll ( PDO::FETCH_ASSOC ) as $row ) {
-			
-			if (!isset($output[$row['year']])) {
-				$output[$row['year']] = $row['year'] == date('Y') ? array_fill(1, date('n'), null) : array_fill(1, 12, null);
+
+		$output = array ();
+
+		foreach ( $statement->fetchAll ( PDO::FETCH_ASSOC ) as $row ) {
+
+			if (! isset ( $output [$row ['year']] )) {
+				$output [$row ['year']] = $row ['year'] == date ( 'Y' ) ? array_fill ( 1, date ( 'n' ), null ) : array_fill ( 1, 12, null );
 			}
-			
-			$output[$row['year']][$row['month']] = $row['amount'];
+
+			$output [$row ['year']] [$row ['month']] = $row ['amount'];
 		}
-		
-		//echo $statement->debugDumpParams();
+
+		// echo $statement->debugDumpParams();
 		return $output;
 	}
 	/**
 	 *
 	 * @since 09/2021
 	 * @version 12/2021
-	 * @param Account $a
 	 */
-	public function getTagSpendingAccountingEntries($label, Account $a = Null) {
+	public function getTagSpendingAccountingEntries($label) {
 		$sql = 'SELECT ae.*, GROUP_CONCAT(t2.label ORDER BY t2.label ASC SEPARATOR \',\') AS tags';
 		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
 		$sql .= ' LEFT JOIN tag AS t2 ON (t2.accounting_entry_id = ae.id AND STRCMP(t2.label, t.label) != 0)';
-		$criteria = array ();
-		$criteria [] = 't.label=:label';
-		$criteria [] = 'ae.type=\'spending\'';
-		
-		if (! is_null ( $a )) {
-			$criteria [] = 'ae.account_id=:account_id';
-		}
-		$sql .= ' WHERE ' . implode ( ' AND ', $criteria );
+
+		$where = array ();
+		$where [] = 't.label=:label';
+		$where [] = 'ae.type=\'spending\'';
+		$where [] = '(YEAR(ae.date) > YEAR(NOW())-:timescope)';
+
+		$sql .= ' WHERE ' . implode ( ' AND ', $where );
 		$sql .= ' GROUP BY ae.id';
 		$sql .= ' ORDER BY ae.date DESC';
 		$statement = $this->getPdo ()->prepare ( $sql );
+
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
-		if (! is_null ( $a )) {
-			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
-		}
+		$statement->bindValue ( ':timescope', self::TIMESCOPE, PDO::PARAM_INT );
+
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		//$statement->debugDumpParams();
+		// $statement->debugDumpParams();
 		$output = array ();
 		foreach ( $rows as $r ) {
 			$e = new AccountingEntry ();
@@ -955,7 +968,7 @@ class System {
 			$e->setDate ( $r ['date'] );
 			$e->setValueDate ( $r ['value_date'] );
 			$e->setDescription ( $r ['description'] );
-			$e->setTags( $r ['tags'] );
+			$e->setTags ( $r ['tags'] );
 			$e->setAmount ( $r ['amount'] );
 			$e->setType ( $r ['type'] );
 			$e->setTimestamp ( $r ['timestamp'] );
@@ -965,14 +978,15 @@ class System {
 		return $output;
 	}
 	/**
+	 *
 	 * @since 04/2022
 	 */
 	public function getTags() {
 		$sql = 'SELECT DISTINCT label FROM tag ORDER BY label ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->execute ();
-		$tags = $statement->fetchAll(PDO::FETCH_COLUMN);
-		return array_map('ucfirst', $tags);
+		$tags = $statement->fetchAll ( PDO::FETCH_COLUMN );
+		return array_map ( 'ucfirst', $tags );
 	}
 }
 ?>
