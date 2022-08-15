@@ -38,7 +38,7 @@ if (! empty ( $_REQUEST ['id'] )) {
 			}
 		}
 		
-		if (isset($_POST['spreadTagsToTagLessSimilarSpendings']) && strcmp($_POST['spreadTagsToTagLessSimilarSpendings'], 'on')==0) {
+		if (isset($_POST['spreadTagsToTagLessSimilarSpendings']) && strcmp($_POST['spreadTagsToTagLessSimilarSpendings'])==1) {
 			foreach ($tagLessSimilarSpendings as $s) {
 				foreach ($tagsToAdd as $t) {
 					if (!empty($t)) {
@@ -48,7 +48,7 @@ if (! empty ( $_REQUEST ['id'] )) {
 			}
 		}
 		
-		header ( 'Location:accounting_entry.php?id='.$accounting_entry->getId() );
+		header ( 'Location:account.php?id='.$account->getId().'&tagLessSpendingOnly=1' );
 		exit ();
 	}
 	
@@ -147,7 +147,7 @@ $doc_title = 'Catégoriser une opération';
 		echo '</div>';
 		echo '<div class="form-group"><label for="newtag_i">Nouvelle catégorie</label><input name="tagsToKeep[]" id="newtag_i" type="text" class="form-control"></input></div>';
 		if (count($tagLessSimilarSpendings)>0) {
-			echo '<div class="form-group"><div class="form-check"><input id="spreadTagsToTagLessSimilarSpendings_i" name="spreadTagsToTagLessSimilarSpendings" class="form-check-input" type="checkbox" checked></input><label for="spreadTagsToTagLessSimilarSpendings_i">Appliquer aux opérations similaires à catégoriser</label></div></div>';
+			echo '<div class="form-group"><div class="form-check"><input id="spreadTagsToTagLessSimilarSpendings_i" name="spreadTagsToTagLessSimilarSpendings" class="form-check-input" type="checkbox" value="1" checked></input><label for="spreadTagsToTagLessSimilarSpendings_i">Appliquer aux opérations similaires à catégoriser</label></div></div>';
 		}
 		echo '<button type="submit" class="btn btn-secondary">enregistrer</button>';
 		echo '</form>';

@@ -20,10 +20,8 @@ if (! empty ( $_REQUEST ['id'] )) {
 		//$criteria['descriptionSubstr'] = ToolBox::formatUserPost($_POST['descriptionSubstr']);
 		$criteria['descriptionSubstr'] = $_POST['descriptionSubstr'];
 	}
-	if (isset($_POST['tagLessSpendingOnly'])) {
-		if ($_POST['tagLessSpendingOnly']==1) {
-			$criteria['tagLessSpendingOnly'] = true;
-		}
+	if (isset($_REQUEST['tagLessSpendingOnly']) && $_REQUEST['tagLessSpendingOnly']==1) {
+		$criteria['tagLessSpendingOnly'] = true;
 	}
 	$entries = $system->getAccountingEntries($account, $criteria);
 } else {
