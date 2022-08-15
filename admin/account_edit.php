@@ -62,6 +62,8 @@ $doc_title = isset ( $account->id ) ? 'Edition d\'un compte' : 'Déclaration d\'
 			</ol>
 		</nav>
 		
+		<main class="px-lg-5">
+		
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 	
 		<?php
@@ -87,6 +89,7 @@ $doc_title = isset ( $account->id ) ? 'Edition d\'un compte' : 'Déclaration d\'
 			<a class="btn btn-default" href="account.php?id=<?php echo $account->id ?>">Abandonner</a>
 			<button name="cmd" type="submit" value="register" class="btn btn-primary">Enregistrer</button>
 		</form>
+		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

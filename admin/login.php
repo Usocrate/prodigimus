@@ -50,25 +50,27 @@ $doc_title = $system->getAppliName();
     <?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
 <body id="loginDoc" >
-<div class="container">	
-	<h1 class="brand"><?php echo ToolBox::toHtml($doc_title); ?></h1>
-	
-	<div>
-		<p><strong><?php echo ToolBox::toHtml($system->getAppliName()); ?> </strong> est l'outil de contrôle budgétaire <a href="https://www.usocrate.fr" title="Lien vers maison-mère">Usocrate.fr</a>.</p>
-		<?php echo $fb->toHtml() ?>
-	</div>
-	
-	<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
-		<div class="form-group">
-    		<label for="user_name_i">Identifiant</label>
-    		<input id="user_name_i" name="user_name" type="text" class="form-control" />
+<div class="container">
+	<main class="px-lg-5">
+		<h1 class="brand"><?php echo ToolBox::toHtml($doc_title); ?></h1>
+		
+		<div>
+			<p><strong><?php echo ToolBox::toHtml($system->getAppliName()); ?> </strong> est l'outil de contrôle budgétaire <a href="https://www.usocrate.fr" title="Lien vers maison-mère">Usocrate.fr</a>.</p>
+			<?php echo $fb->toHtml() ?>
 		</div>
-		<div class="form-group">
-    		<label for="user_password_i">Mot de passe</label>
-    		<input id="user_password_i" name="user_password" type="password" class="form-control" />
-		</div>
-		<button name="login_submission" type="submit" value="1" class="btn btn-primary">Pousser</button>
-	</form>
+		
+		<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
+			<div class="form-group">
+	    		<label for="user_name_i">Identifiant</label>
+	    		<input id="user_name_i" name="user_name" type="text" class="form-control" />
+			</div>
+			<div class="form-group">
+	    		<label for="user_password_i">Mot de passe</label>
+	    		<input id="user_password_i" name="user_password" type="password" class="form-control" />
+			</div>
+			<button name="login_submission" type="submit" value="1" class="btn btn-primary">Pousser</button>
+		</form>
+	</main>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

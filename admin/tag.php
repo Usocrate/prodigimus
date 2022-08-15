@@ -22,7 +22,7 @@ if (! empty ( $_REQUEST ['label'] )) {
 
 $messages = array ();
 
-$doc_title = $_REQUEST ['label'];
+$doc_title = ucfirst($_REQUEST ['label']);
 ?>
 <!doctype html>
 <html lang="fr">
@@ -42,7 +42,10 @@ $doc_title = $_REQUEST ['label'];
 				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
-		</nav>	
+		</nav>
+		
+		<main class="px-lg-5">
+		
 		<h1><?php echo ucfirst(ToolBox::toHtml($doc_title)); ?></h1>
 		
 		<canvas id="chartCanvas" style="margin:2em 0; max-height:320px; min-height:200px"></canvas>
@@ -134,6 +137,7 @@ $doc_title = $_REQUEST ['label'];
 				echo '<p>Pas d\'opération enregistrée.</p>';
 			}
 		?>
+		</main>
 	</div>
 	<script>
 	const ctx = document.getElementById('chartCanvas');

@@ -53,6 +53,8 @@ $doc_title = $account->getDescription();
 				<li class="breadcrumb-item active">Compte</li>
 			</ol>
 		</nav>
+		
+		<main class="px-lg-5">
 	
 		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
@@ -107,6 +109,7 @@ $doc_title = $account->getDescription();
 			echo '<p>Pas d\'opération enregistrée.</p>';
 		}
 		?>
+		</main>
 	</div>
 </body>
 </html>

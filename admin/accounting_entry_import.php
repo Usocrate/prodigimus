@@ -205,6 +205,9 @@ if (isset ( $_POST ['task_id'] )) {
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
 		</nav>
+		
+		<main class="px-lg-5">
+		
 		<header>
 			<h1><?php echo ToolBox::toHtml($doc_title) ?></h1>
 			<p><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->getDescription()) ?></a></p>
@@ -459,6 +462,7 @@ if (isset ( $_POST ['task_id'] )) {
 		?>
 		</div>
 		</div>
+		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
 		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

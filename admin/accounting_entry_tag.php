@@ -13,17 +13,19 @@ if (file_exists ( '../config/host.json' )) {
 	exit ();
 }
 
+print_r($_POST);
+
 $messages = array ();
 
 if (! empty ( $_REQUEST ['id'] )) {
 	$accounting_entry = $system->getAccountingEntry ( $_REQUEST ['id'] );
 	$account = $system->getAccount ( $accounting_entry->getAccountId () );
 	$tags = $system->getAccountingEntryTags ( $accounting_entry );
+	$tagLessSimilarSpendings = $system->getSimilarAccountingEntries($accounting_entry, array('tagLessSpendingOnly'=>true));
 	
 	if (isset($_POST['tagsToKeep'])) {
 		
 		$tagsToRemove = array_diff($tags, $_POST['tagsToKeep']);
-
 		$tagsToAdd = array_diff($_POST['tagsToKeep'], $tags);
 		
 		foreach ($tagsToRemove as $t) {
@@ -35,6 +37,17 @@ if (! empty ( $_REQUEST ['id'] )) {
 				$system->tagAccountingEntry($accounting_entry, $t);
 			}
 		}
+		
+		if (isset($_POST['spreadTagsToTagLessSimilarSpendings']) && strcmp($_POST['spreadTagsToTagLessSimilarSpendings'], 'on')==0) {
+			foreach ($tagLessSimilarSpendings as $s) {
+				foreach ($tagsToAdd as $t) {
+					if (!empty($t)) {
+						$system->tagAccountingEntry($s, $t);
+					}
+				}
+			}
+		}
+		
 		header ( 'Location:accounting_entry.php?id='.$accounting_entry->getId() );
 		exit ();
 	}
@@ -67,6 +80,8 @@ $doc_title = 'Catégoriser une opération';
 			</ol>
 		</nav>
 
+		<main class="px-lg-5">
+		
 		<h1><?php echo ToolBox::toHtml($doc_title)?></h1>
 		
 		<?php
@@ -77,7 +92,9 @@ $doc_title = 'Catégoriser une opération';
 			}
 			echo '</div>';
 		}
-
+		?>
+			
+		<?php
 		echo '<div>';
 		echo '<p><a href="accounting_entry.php?id=' . $accounting_entry->getId () . '">' . $accounting_entry->getHtmlDescription () . '</a></p>';
 		echo '<p>';
@@ -93,18 +110,22 @@ $doc_title = 'Catégoriser une opération';
 		}
 		echo '</p>';
 		echo "</div>";
-
 		?>
-		<h2 class="mt-2">Catégories</h2>
-				
+
 		<?php
 		$i = 0;
 		
 		$knownTags = $system->getTags();
 		$suggestedTags = $system->getSimilarAccountingEntriesTags ( $accounting_entry );
 				
+		echo '<div class="row">';
+		
+		echo '<section class="mt-2 col-lg-8">';
+		echo '<h2>Catégories</h2>';
+		
 		echo '<form action="'.$_SERVER['PHP_SELF'].'" method="post" class="mt-3 mb-3">';
 		echo '<input name="id" type="hidden" value="'.$accounting_entry->getId().'">';
+		
 		echo '<div class="d-flex flex-wrap">';
 		foreach ($knownTags as $t) {
 			echo '<div class="form-group mr-4">';
@@ -125,9 +146,31 @@ $doc_title = 'Catégoriser une opération';
 		}
 		echo '</div>';
 		echo '<div class="form-group"><label for="newtag_i">Nouvelle catégorie</label><input name="tagsToKeep[]" id="newtag_i" type="text" class="form-control"></input></div>';
+		if (count($tagLessSimilarSpendings)>0) {
+			echo '<div class="form-group"><div class="form-check"><input id="spreadTagsToTagLessSimilarSpendings_i" name="spreadTagsToTagLessSimilarSpendings" class="form-check-input" type="checkbox" checked></input><label for="spreadTagsToTagLessSimilarSpendings_i">Appliquer aux opérations similaires à catégoriser</label></div></div>';
+		}
 		echo '<button type="submit" class="btn btn-secondary">enregistrer</button>';
 		echo '</form>';
+		echo '</section>';
+		
+		if (count($tagLessSimilarSpendings)>0) {
+			echo '<section class="mt-2 col-lg-4">';
+			echo '<h2>Opérations similaires à catégoriser</h2>';
+			echo '<ul class="list-group">';
+			foreach ($tagLessSimilarSpendings as $s) {
+				echo '<li class="list-group-item">';
+				echo '<small>'.$s->getDateToDisplay().'</small></br>';
+				echo '<h4><a href="' . $system->getAccountingEntryAdminUrl ( $s ) . '">' . $s->getHtmlDescription(). '</a></h4>';
+				echo $s->getAmountToDisplay ();
+				echo '</li>';
+			}
+			echo '</ul>';
+			echo '</section>';
+		}
+		
+		echo '</div>';
 		?>
+		</main>		
 	</div>
 </body>
 </html>

@@ -58,16 +58,18 @@ $doc_title = 'La base de données ('.$system->getDbName().')';
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
-		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
-		<?php if(isset($fb)) {
-			echo $fb->toHtml();
-		}
-		?>
-		<div class="list-group">
-			<a href="database.php?cmd=create" class="list-group-item list-group-item-action">Recréer la base de données</a>
-			<a href="database.php?cmd=reinitAccountingEntries" class="list-group-item list-group-item-action">Réinitialiser le stockage des opérations de compte</a>
-			<a href="database.php?cmd=revertTodayImportation" class="list-group-item list-group-item-action">Annuler les importations d'opérations du jour</a>
-		</div>
+		<main class="px-lg-5">
+			<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
+			<?php if(isset($fb)) {
+				echo $fb->toHtml();
+			}
+			?>
+			<div class="list-group">
+				<a href="database.php?cmd=create" class="list-group-item list-group-item-action">Recréer la base de données</a>
+				<a href="database.php?cmd=reinitAccountingEntries" class="list-group-item list-group-item-action">Réinitialiser le stockage des opérations de compte</a>
+				<a href="database.php?cmd=revertTodayImportation" class="list-group-item list-group-item-action">Annuler les importations d'opérations du jour</a>
+			</div>
+		</main>
 	</div>
 </body>
 </html>

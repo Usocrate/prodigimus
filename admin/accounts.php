@@ -28,6 +28,8 @@ $doc_title = 'Comptes';
 <body>
 	<?php include 'navbar.inc.php'; ?>
 	<div class="container-fluid">
+	
+		<main class="px-lg-5">
 
 		<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 			<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
@@ -44,6 +46,7 @@ $doc_title = 'Comptes';
 		}
 		echo '</div>';
 		?>
+		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>	
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

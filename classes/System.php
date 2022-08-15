@@ -736,23 +736,38 @@ class System {
 		}
 	}
 	/**
-	 *
 	 * @since 02/2021
+	 * @version 08/2022
 	 * @param AccountingEntry $ae
 	 * @return AccountingEntry[]
 	 */
-	public function getSimilarAccountingEntries(AccountingEntry $ae) {
+	public function getSimilarAccountingEntries(AccountingEntry $ae, $criteria = NULL) {
 		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags FROM accounting_entry AS e';
 		$sql .= ' LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
-		$sql .= ' WHERE e.id!=:id AND e.description LIKE :description';
+		
+		$where = array('e.id!=:id', 'e.description LIKE :description');
+		$having = array();
+		
+		if (isset ( $criteria ['tagLessSpendingOnly']) && $criteria ['tagLessSpendingOnly'] === true) {
+			$where [] = 'type = :type';
+			$where [] = 't.label IS NULL';
+		}
+		
+		$sql .= ' WHERE '.implode(' AND ', $where);
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
+		if (count($having)) {
+			$sql .= ' HAVING '.implode(' AND ', $having);
+		}
 		
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
 		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription ( $ae ), PDO::PARAM_STR );
+		if (isset ( $criteria ['tagLessSpendingOnly']) && $criteria ['tagLessSpendingOnly'] === true) {
+			$statement->bindValue ( ':type', 'spending', PDO::PARAM_STR );
+		}
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		// $statement->debugDumpParams();
+		//$statement->debugDumpParams();
 
 		$output = array ();
 		foreach ( $rows as $r ) {
@@ -879,8 +894,7 @@ class System {
 	 * @return boolean
 	 */
 	public function untagAccountingEntry(AccountingEntry $ae, $label = NULL) {
-		$sql = 'DELETE FROM tag';
-		$sql .= ' WHERE accounting_entry_id=:ae_id';
+		$sql = 'DELETE FROM tag WHERE accounting_entry_id=:ae_id';
 		if (isset ( $label )) {
 			$sql .= ' AND label=:label';
 		}

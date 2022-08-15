@@ -45,6 +45,8 @@ $doc_title = 'Opération';
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
 		</nav>
+		
+		<main class="px-lg-5">
 
 		<header>
 			<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
@@ -149,6 +151,7 @@ $doc_title = 'Opération';
 			echo '</div>'; // fermeture du container
 		}
 		?>
+		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
