@@ -13,7 +13,7 @@ if (file_exists ( '../config/host.json' )) {
 	exit ();
 }
 
-print_r($_POST);
+//print_r($_POST);
 
 $messages = array ();
 
@@ -38,7 +38,7 @@ if (! empty ( $_REQUEST ['id'] )) {
 			}
 		}
 		
-		if (isset($_POST['spreadTagsToTagLessSimilarSpendings']) && strcmp($_POST['spreadTagsToTagLessSimilarSpendings'])==1) {
+		if (isset($_POST['spreadTagsToTagLessSimilarSpendings']) && $_POST['spreadTagsToTagLessSimilarSpendings']==1) {
 			foreach ($tagLessSimilarSpendings as $s) {
 				foreach ($tagsToAdd as $t) {
 					if (!empty($t)) {
