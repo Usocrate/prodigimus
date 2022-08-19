@@ -1,12 +1,6 @@
 <?php
-function __autoload($class_name) {
-	$path = '../classes/';
-	if (is_file ( $path . $class_name . '.php' )) {
-		include_once $path . $class_name . '.php';
-	}
-}
-
 if (file_exists ( '../config/host.json' )) {
+	include_once '../classes/System.php';
 	$system = new System ( '../config/host.json' );
 } else {
 	header ( 'Location:config.php' );

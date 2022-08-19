@@ -3,9 +3,7 @@
  * @package usocrate.prodigimus
  * @author Florent Chanavat
  */
-
 class System {
-	
 	private $db_host;
 	private $db_name;
 	private $db_user;
@@ -17,14 +15,16 @@ class System {
 	private $appli_theme_color;
 	private $appli_background_color;
 	private $dir_path;
-	
-	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante. 
-	
+	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante.
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
 			$this->parseConfigFile ();
 		}
+		spl_autoload_register ( array (
+				$this,
+				'loadClass'
+		) );
 	}
 	public function setDbHost($input) {
 		$this->db_host = $input;
@@ -94,6 +94,21 @@ class System {
 	}
 	public function getClassDirPath() {
 		return $this->dir_path . DIRECTORY_SEPARATOR . 'classes';
+	}
+	/**
+	 *
+	 * @since 08/2022
+	 * @param string $class_name
+	 */
+	public function loadClass($class_name) {
+		$file_path = $this->getClassDirPath () . DIRECTORY_SEPARATOR . $class_name . '.php';
+		if (is_file ( $file_path )) {
+			include_once $file_path;
+			return true;
+		} else {
+			error_log ( $file_path . ' not found.' );
+			return false;
+		}
 	}
 	/**
 	 *
@@ -736,6 +751,7 @@ class System {
 		}
 	}
 	/**
+	 *
 	 * @since 02/2021
 	 * @version 08/2022
 	 * @param AccountingEntry $ae
@@ -744,30 +760,33 @@ class System {
 	public function getSimilarAccountingEntries(AccountingEntry $ae, $criteria = NULL) {
 		$sql = 'SELECT e.*, GROUP_CONCAT(t.label ORDER BY t.label ASC SEPARATOR \',\') AS tags FROM accounting_entry AS e';
 		$sql .= ' LEFT OUTER JOIN tag AS t ON (e.id = t.accounting_entry_id)';
-		
-		$where = array('e.id!=:id', 'e.description LIKE :description');
-		$having = array();
-		
-		if (isset ( $criteria ['tagLessSpendingOnly']) && $criteria ['tagLessSpendingOnly'] === true) {
+
+		$where = array (
+				'e.id!=:id',
+				'e.description LIKE :description'
+		);
+		$having = array ();
+
+		if (isset ( $criteria ['tagLessSpendingOnly'] ) && $criteria ['tagLessSpendingOnly'] === true) {
 			$where [] = 'type = :type';
 			$where [] = 't.label IS NULL';
 		}
-		
-		$sql .= ' WHERE '.implode(' AND ', $where);
+
+		$sql .= ' WHERE ' . implode ( ' AND ', $where );
 		$sql .= ' GROUP BY e.id ORDER BY e.date DESC';
-		if (count($having)) {
-			$sql .= ' HAVING '.implode(' AND ', $having);
+		if (count ( $having )) {
+			$sql .= ' HAVING ' . implode ( ' AND ', $having );
 		}
-		
+
 		$statement = $this->getPdo ()->prepare ( $sql );
 		$statement->bindValue ( ':id', $ae->getId (), PDO::PARAM_INT );
 		$statement->bindValue ( ':description', $this->getSimilarityClueToSearchInDescription ( $ae ), PDO::PARAM_STR );
-		if (isset ( $criteria ['tagLessSpendingOnly']) && $criteria ['tagLessSpendingOnly'] === true) {
+		if (isset ( $criteria ['tagLessSpendingOnly'] ) && $criteria ['tagLessSpendingOnly'] === true) {
 			$statement->bindValue ( ':type', 'spending', PDO::PARAM_STR );
 		}
 		$statement->execute ();
 		$rows = $statement->fetchAll ( PDO::FETCH_ASSOC );
-		//$statement->debugDumpParams();
+		// $statement->debugDumpParams();
 
 		$output = array ();
 		foreach ( $rows as $r ) {
@@ -861,6 +880,15 @@ class System {
 	}
 	/**
 	 *
+	 * @since 08/2022
+	 * @return string
+	 */
+	public function formatAmountToDisplay($amount) {
+		$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
+		return $nf->formatCurrency ( $amount, 'EUR' );
+	}
+	/**
+	 *
 	 * @since 02/2021
 	 * @param AccountingEntry $ae
 	 * @return array
@@ -906,6 +934,7 @@ class System {
 		return $statement->execute () ? 'requête OK' : 'requête KO';
 	}
 	/**
+	 *
 	 * @since 09/2021
 	 * @version 04/2022
 	 */
@@ -925,14 +954,14 @@ class System {
 		$sql .= ' GROUP BY YEAR(ae.date), MONTH(ae.date)';
 		$sql .= ' ORDER BY YEAR(ae.date) DESC, MONTH(ae.date) ASC';
 		$statement = $this->getPdo ()->prepare ( $sql );
-		
+
 		$statement->bindValue ( ':label', $label, PDO::PARAM_STR );
 		$statement->bindValue ( ':timescope', self::TIMESCOPE, PDO::PARAM_INT );
-		
+
 		if (! is_null ( $a )) {
 			$statement->bindValue ( ':account_id', $a->getId (), PDO::PARAM_INT );
 		}
-		
+
 		$statement->execute ();
 
 		$output = array ();
@@ -944,6 +973,43 @@ class System {
 			}
 
 			$output [$row ['year']] [$row ['month']] = $row ['amount'];
+		}
+
+		// echo $statement->debugDumpParams();
+		return $output;
+	}
+	/**
+	 *
+	 * @since 08/2022
+	 */
+	public function getYearToDateSpendingAmount() {
+		$sql = 'SELECT t.label AS tag, SUM(ae.amount) AS amount, YEAR(ae.date) AS year';
+		$sql .= ' FROM tag AS t INNER JOIN accounting_entry AS ae ON (t.accounting_entry_id = ae.id)';
+
+		$where = array ();
+		$where [] = '(YEAR(ae.date) > YEAR(NOW())-2)';
+		$where [] = 'DAYOFYEAR(ae.date) <= DAYOFYEAR(NOW())';
+		$where [] = 'ae.type=\'spending\'';
+
+		$sql .= ' WHERE ' . implode ( ' AND ', $where );
+		$sql .= ' GROUP BY tag, year';
+		$statement = $this->getPdo ()->prepare ( $sql );
+
+		$statement->execute ();
+
+		$output = array ();
+		$now = new DateTime ();
+		$currentYear = $now->format ( 'Y' );
+		$previousYear = $currentYear - 1;
+
+		foreach ( $statement->fetchAll ( PDO::FETCH_ASSOC ) as $row ) {
+			if (! isset ( $output [$row ['tag']] )) {
+				$output [$row ['tag']] = array (
+						$currentYear => 0,
+						$previousYear => 0
+				);
+			}
+			$output [$row ['tag']] [$row ['year']] = $row ['amount'];
 		}
 
 		// echo $statement->debugDumpParams();

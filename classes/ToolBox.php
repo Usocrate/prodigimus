@@ -155,6 +155,6 @@ class ToolBox {
 	 * @since 02/2007
 	 */
 	public static function addIncludePath($input) {
-		return ini_set ( 'include_path', $input . PATH_SEPARATOR . ini_get ( 'include_path' ) );
+		return ini_set ( 'include_path', $input . DIRECTORY_SEPARATOR . ini_get ( 'include_path' ) );
 	}
 }

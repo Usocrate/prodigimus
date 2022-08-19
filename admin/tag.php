@@ -1,12 +1,6 @@
 <?php
-function __autoload($class_name) {
-	$path = '../classes/';
-	if (is_file ( $path . $class_name . '.php' )) {
-		include_once $path . $class_name . '.php';
-	}
-}
-
 if (file_exists ( '../config/host.json' )) {
+	include_once '../classes/System.php';
 	$system = new System ( '../config/host.json' );
 } else {
 	header ( 'Location:config.php' );
@@ -39,7 +33,7 @@ $doc_title = ucfirst($_REQUEST ['label']);
 	<div class="container-fluid">
 		<nav>
 			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="accounts.php">Comptes</a></li>
+				<li class="breadcrumb-item"><a href="spending.php">Dépenses</a></li>
 				<li class="breadcrumb-item active"><?php echo ToolBox::toHtml($doc_title) ?></li>
 			</ol>
 		</nav>

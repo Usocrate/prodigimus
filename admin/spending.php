@@ -7,7 +7,7 @@ if (file_exists ( '../config/host.json' )) {
 	exit ();
 }
 
-$doc_title = 'Comptes';
+$doc_title = 'Dépenses';
 
 ?>
 <!doctype html>
@@ -28,19 +28,32 @@ $doc_title = 'Comptes';
 		<header>
 			<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
 				<h1><?php echo ToolBox::toHtml($doc_title); ?></h1>
-				<a class="btn btn-outline-secondary" href="account_edit.php">Déclarer un nouveau compte</a>
 			</div>
 		</header>
-		<?php
-		$accounts = $system->getAccounts ();
-		echo '<div class="list-group row">';
-		foreach ( $accounts as $a ) {
-			echo '<div class="col-lg-4">';
-			echo '<a href="account.php?id=' . $a->id . '" class="list-group-item list-group-item-action">'.ToolBox::toHtml($a->description).'</a>';
-			echo '</div>';
-		}
-		echo '</div>';
+		
+		<div class="row">
+		<?php 
+			$stats = $system->getYearToDateSpendingAmount();
+			//print_r($stats);
+			$now = new DateTime();
+			$currentYear = $now->format('Y');
+			$previousYear = $currentYear-1;
+			foreach ($stats as $tag=>$amounts) {
+				echo '<div class="col-lg-2">';
+				echo '<div class="card text-center mb-2">';
+				echo '<div class="card-body">';
+				echo '<a href="tag.php?label='.urlencode($tag).'"><h5 class="card-title">'.ToolBox::toHtml($tag).'</h5></a>';
+				echo '<div><big>'.$system->formatAmountToDisplay($amounts[$currentYear]).'</big></div>';
+				if ($amounts[$previousYear]!=0) {
+					echo '<div><small>('.round(((($amounts[$currentYear]-$amounts[$previousYear])/$amounts[$previousYear])*100),1).'%)</small></div>';
+				}
+				echo '</div>';
+				echo '</div>';
+				echo '</div>';
+			}
 		?>
+		</div>
+		
 		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>	
