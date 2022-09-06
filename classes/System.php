@@ -16,6 +16,7 @@ class System {
 	private $appli_background_color;
 	private $dir_path;
 	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante.
+	
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
