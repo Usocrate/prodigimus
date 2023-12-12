@@ -12,6 +12,9 @@ class Account {
 	public function getId() {
 		return isset ( $this->id ) ? $this->id : NULL;
 	}
+	public function hasId() {
+		return isset( $this->id );
+	}
 	public function setDescription($input) {
 		$this->description = $input;
 	}

@@ -8,7 +8,7 @@ if (file_exists ( '../config/host.json' )) {
 }
 
 if (isset ( $_REQUEST ['cmd'] )) {
-	$fb = new UserFeedBack();
+	$fb = new Feedback();
 	
 	switch ($_REQUEST ['cmd']) {
 		case 'create' :
@@ -24,12 +24,13 @@ if (isset ( $_REQUEST ['cmd'] )) {
 			$result = $pdo->exec('DELETE FROM accounting_entry WHERE DATEDIFF(timestamp,CURDATE())=0');
 			if ($result !== false) {
 				if ($result > 1) {
-					$fb->addSuccessMessage($result.' opérations ont été effacées.');
+					$fb->setMessage($result.' opérations ont été effacées.');
 				} else if ($result == 1) {
-					$fb->addSuccessMessage(' Une opération a été effacée.');
+					$fb->setMessage('Une opération a été effacée.');
 				} else {
-					$fb->addSuccessMessage(' Aucune opération n\'aavit été importée aujourd\'hui.');
+					$fb->setMessage('Aucune opération n\'avait été importée aujourd\'hui.');
 				}
+				$fb->setType('success');
 			}
 			break;
 	}
@@ -53,7 +54,7 @@ $doc_title = 'La base de données ('.$system->getDbName().')';
 		<main class="px-lg-5">
 			<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 			<?php if(isset($fb)) {
-				echo $fb->toHtml();
+				echo $fb->messageToHtml();
 			}
 			?>
 			<div class="list-group">

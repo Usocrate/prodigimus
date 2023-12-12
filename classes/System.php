@@ -80,6 +80,9 @@ class System {
 	public function getAppliBackgroundColor() {
 		return $this->appli_background_color;
 	}
+	public function getApiUrl() {
+		return $this->appli_url . '/api';
+	}
 	public function getSkinUrl() {
 		return $this->appli_url . '/skin';
 	}
@@ -607,6 +610,18 @@ class System {
 		}
 		return null;
 	}
+	/**
+	 *
+	 * @param int $id
+	 * @return boolean
+	 * @since 12/2023
+	 */
+	public function deleteAccount($id) {
+		$sql = 'DELETE FROM account WHERE id=:id';
+		$statement = $this->getPdo ()->prepare ( $sql );
+		$statement->bindValue ( ':id', $id, PDO::PARAM_INT );
+		return $statement->execute ();
+	}
 	public function getAccountingEntry($id) {
 		$sql = 'SELECT * FROM accounting_entry WHERE id=:id';
 		$statement = $this->getPdo ()->prepare ( $sql );
@@ -728,6 +743,7 @@ class System {
 		return $output;
 	}
 	/**
+	 *
 	 * @since 12/2023
 	 * @param object $o
 	 * @return boolean
@@ -758,7 +774,7 @@ class System {
 						$where [] = 'amount=:amount';
 					}
 
-					$sql = 'SELECT id FROM accounting_entry WHERE '.implode ( ', ', $where );
+					$sql = 'SELECT id FROM accounting_entry WHERE ' . implode ( ', ', $where );
 					$statement = $this->getPdo ()->prepare ( $sql );
 
 					if (isset ( $o->account_id )) {
@@ -779,11 +795,11 @@ class System {
 					if (isset ( $o->amount )) {
 						$statement->bindValue ( ':amount', $o->amount, PDO::PARAM_STR );
 					}
-					$id = $statement->fetchColumn();
-					if (empty($id)) {
+					$id = $statement->fetchColumn ();
+					if (empty ( $id )) {
 						return false;
 					} else {
-						$o->setId($id);
+						$o->setId ( $id );
 						return true;
 					}
 			}

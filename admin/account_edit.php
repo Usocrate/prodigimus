@@ -83,9 +83,37 @@ $doc_title = isset ( $account->id ) ? 'Edition d\'un compte' : 'Déclaration d\'
 			<a class="btn btn-default" href="account.php?id=<?php echo $account->id ?>">Abandonner</a>
 			<button name="cmd" type="submit" value="register" class="btn btn-primary">Enregistrer</button>
 		</form>
+		<?php
+			if($account->hasId()) {
+				echo '<p>Tu veux retirer ce compte de l\'analyse ? C\'est <a id="delete_a" href="#">ici</a>.</p>';
+			}
+		?>		
 		</main>
 	</div>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 	<script src="../vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<?php if($account->hasId()): ?>
+	<script type="text/javascript">
+		document.addEventListener("DOMContentLoaded", function() {
+			const delete_a = document.getElementById('delete_a');
+			delete_a.addEventListener('click', function (event) {
+			  event.preventDefault();
+			  var xhr = new XMLHttpRequest();
+			  xhr.open("POST", "<?php echo $system->getApiUrl() ?>/accounts/", true);
+			  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			  xhr.responseType = 'json';
+			  xhr.onreadystatechange = function () {
+			    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+			    	alert(this.response.message);
+			    	if (this.response.data.location !== undefined) {
+				    	window.location.replace(this.response.data.location);
+			    	}
+		    	}				  
+			  };
+			  xhr.send("id=<?php echo $account->getId() ?>&task=deletion");
+			});
+		});
+	</script>
+	<?php endif; ?>	
 </body>
 </html>

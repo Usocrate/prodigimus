@@ -21,7 +21,7 @@ if ($system->configFileExists ()) {
 }
 
 if (isset ( $_POST ['cmd'] )) {
-	$fb = new UserFeedBack ();
+	$fb = new Feedback();
 	ToolBox::formatUserPost ( $_POST );
 	switch ($_POST ['cmd']) {
 		case 'save' :
@@ -61,9 +61,11 @@ if (isset ( $_POST ['cmd'] )) {
 				$fb->addDangerMessage ( 'Echec de l\'enregistrement de la configuration.' );
 			}
 			if ($system->saveManifestFile ()) {
-				$fb->addSuccessMessage ( 'Manifeste accessible ('.$system->getManifestUrl().').' );
+				$fb->setMessage ( 'Manifeste accessible ('.$system->getManifestUrl().').' );
+				$fb->setType('success');
 			} else {
-				$fb->addDangerMessage ( 'Echec de l\'enregistrement du manifeste.' );
+				$fb->setMessage ( 'Echec de l\'enregistrement du manifeste.' );
+				$fb->setType('error');
 			}
 			break;
 	}
@@ -87,9 +89,7 @@ header ( 'charset=utf-8' );
 		<h1>Configuration</h1>
 		<?php
 		if (isset ( $fb )) {
-			echo '<div>';
-			echo $fb->AllMessagesToHtml ();
-			echo '</div>';
+			echo $fb->messageToHtml();
 		}
 		?>
 		<form action="<?php $_SERVER['PHP_SELF'] ?>" method="post">
