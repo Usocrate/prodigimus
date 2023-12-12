@@ -16,7 +16,6 @@ class System {
 	private $appli_background_color;
 	private $dir_path;
 	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante.
-	
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
@@ -727,6 +726,72 @@ class System {
 			unset ( $e );
 		}
 		return $output;
+	}
+	/**
+	 * @since 12/2023
+	 * @param object $o
+	 * @return boolean
+	 */
+	public function identify($o) {
+		try {
+			switch (get_class ( $o )) {
+
+				case 'AccountingEntry' :
+
+					$where = array ();
+					if (isset ( $o->account_id )) {
+						$where [] = 'account_id=:account_id';
+					}
+					if (isset ( $o->date )) {
+						$where [] = 'date=:date';
+					}
+					if (isset ( $o->value_date )) {
+						$where [] = 'value_date=:value_date';
+					}
+					if (isset ( $o->description )) {
+						$where [] = 'description=:description';
+					}
+					if (isset ( $o->type )) {
+						$where [] = 'type=:type';
+					}
+					if (isset ( $o->amount )) {
+						$where [] = 'amount=:amount';
+					}
+
+					$sql = 'SELECT id FROM accounting_entry WHERE '.implode ( ', ', $where );
+					$statement = $this->getPdo ()->prepare ( $sql );
+
+					if (isset ( $o->account_id )) {
+						$statement->bindValue ( ':account_id', $o->account_id, PDO::PARAM_STR );
+					}
+					if (isset ( $o->date )) {
+						$statement->bindValue ( ':date', $o->date->format ( 'Y/m/d' ), PDO::PARAM_STR );
+					}
+					if (isset ( $o->value_date )) {
+						$statement->bindValue ( ':value_date', $o->value_date->format ( 'Y/m/d' ), PDO::PARAM_STR );
+					}
+					if (isset ( $o->description )) {
+						$statement->bindValue ( ':description', $o->description, PDO::PARAM_STR );
+					}
+					if (isset ( $o->type )) {
+						$statement->bindValue ( ':type', $o->type, PDO::PARAM_STR );
+					}
+					if (isset ( $o->amount )) {
+						$statement->bindValue ( ':amount', $o->amount, PDO::PARAM_STR );
+					}
+					$id = $statement->fetchColumn();
+					if (empty($id)) {
+						return false;
+					} else {
+						$o->setId($id);
+						return true;
+					}
+			}
+			return false;
+		} catch ( Exception $e ) {
+			var_dump ( $o );
+			$this->reportException ( $e );
+		}
 	}
 	/**
 	 *

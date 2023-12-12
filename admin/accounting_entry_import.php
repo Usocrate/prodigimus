@@ -161,7 +161,18 @@ if (isset ( $_POST ['task_id'] )) {
 										}
 									}
 									// var_dump($e);
-									if ((isset ( $lastEntryDate ) && $e->getDate () > $lastEntryDate) || is_null( $lastEntryDate )) {
+									if ((isset ( $lastEntryDate ) && $e->getDate () >= $lastEntryDate) || is_null( $lastEntryDate )) {
+										// à la date de la dernière exportation des données depuis le site de la banque,
+										// toutes les opérations n'étaient pas forcément encore enregistrées pour le jour en cours
+										// lors de la prochaine récupération des données,
+										// il faut s'assurer de ne pas oublier les opérations qui ont été enregistrées à cette date
+										// mais postérieurement à la précédente récupération des données 
+										// à l'importation des données, on vérifie que l'opération n'a pas déjà été enregistrée pour éviter les doublons
+										if ($e->getDate () == $lastEntryDate) {
+											if ($system->identify($e)) {
+												continue;
+											}
+										}
 										$system->put ( $e );
 									}
 								}
