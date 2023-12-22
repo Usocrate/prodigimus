@@ -816,20 +816,39 @@ class System {
 	 * @return string|NULL
 	 */
 	public function getSimilarityClueToSearchInDescription(AccountingEntry $ae) {
-		if (preg_match ( '/(PAIEMENT (CB|PSC) [0-9]{4}) (.+) (CARTE [0-9]{8})/', $ae->getDescription (), $matches )) {
+		if (preg_match ( '/(PAIEMENT (CB|PSC|MOB) [0-9]{4}) (.+) (CARTE [0-9]{4}|PAYWEB[0-9]{4}|CARTE [0-9]{8}|PAYWEB[0-9]{8})/', $ae->getDescription (), $matches )) {
 			// Paiement par carte bancaire
 			// ex. : PAIEMENT CB 0302 TASSIN LA DEM AUCHAN SUPER MA CARTE 34500495
+			// ex. : PAIEMENT MOB 1211 FR SEPTEME SUMUP BISTRUCK CARTE 0564
 			// print_r($matches);
 			return '%' . $matches [3] . '%';
-		} else {
-			if (preg_match ( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
-				// Prélèvement SEPA
-				// ex. : PRLV SEPA FREE TELECOM FHD 995033022 FREE HAUTDEBIT 995033022
-				// print_r($matches);
-				return '%' . $matches [1] . '%';
-			} else {
-				return $ae->getDescription ();
-			}
+		}
+		elseif (preg_match ( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
+			// Prélèvement SEPA
+			// ex. : PRLV SEPA FREE TELECOM FHD 995033022 FREE HAUTDEBIT 995033022
+			//print_r($matches);
+			return '%' . $matches [1] . '%';
+		}
+		elseif (preg_match ( '/^(FRAIS PAIE CB OP)/', $ae->getDescription (), $matches )) {
+			// Frais opération bancaire
+			// ex. : FRAIS PAIE CB OP 14,99 EUR
+			//print_r($matches);
+			return $matches [1].'%';
+		}
+		elseif (preg_match ( '/^(LIVRET ASS)/', $ae->getDescription (), $matches )) {
+			// Livret Assurance Vie versement automatique
+			// ex. : LIVRET ASS OF9283449 2227799 OF9283449
+			//print_r($matches);
+			return $matches [1].'%';
+		}
+		elseif (preg_match ( '/^(RESTAURANT LYON) [0-9]{11}/', $ae->getDescription (), $matches )) {
+			// Restaurant d'entreprise
+			// ex. : RESTAURANT LYON 00120230801
+			//print_r($matches);
+			return $matches [1].'%';
+		}
+		else {
+			return $ae->getDescription ();
 		}
 	}
 	/**
