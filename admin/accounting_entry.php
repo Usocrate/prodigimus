@@ -62,7 +62,7 @@ $doc_title = 'Opération';
 	
 		echo '<p>';
 		
-		$df = new IntlDateFormatter(Locale::getDefault(),IntlDateFormatter::RELATIVE_MEDIUM, IntlDateFormatter::NONE);
+		$df = new IntlDateFormatter(Locale::getDefault(),IntlDateFormatter::MEDIUM, IntlDateFormatter::NONE);
 		
 		switch ($accounting_entry->getType ()) {
 			case 'spending' :
