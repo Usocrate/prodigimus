@@ -25,7 +25,6 @@ $doc_title = 'Opération';
 	<title><?php echo ToolBox::toHtml($doc_title) ?></title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 	<link type="text/css" rel="stylesheet" href="<?php echo $system->getSkinUrl(); ?>/theme.css"></link>
 	<?php echo $system->writeHtmlHeadTagsForFavicon(); ?>
 </head>
@@ -77,11 +76,7 @@ $doc_title = 'Opération';
 		$tags = $system->getAccountingEntryTags ( $accounting_entry ); 
 		
 		 if (count ( $tags ) > 0) {
-			 echo '<p>';
-			 foreach ( $tags as $t ) {
-				 echo '<a href="' . $system->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
-			 }
-			 echo '</p>';
+			 echo '<div>' . $system->getHtmlTagList($tags) . '</div>';
 		 }
 	
 		$similarAccountingEntries = $system->getSimilarAccountingEntries ( $accounting_entry );
@@ -125,7 +120,8 @@ $doc_title = 'Opération';
 				
 				
 				if ($e->isTagged()) {
-					echo '<div>' . $e->getHtmlTags () . '</div>';
+					$l = array_diff($e->getTags(), $tags);
+					echo '<div>' . $system->getHtmlTagList($l) . '</div>';
 				} else {
 					if (strcmp($e->type, 'spending')==0) {
 						echo '<div><a href="accounting_entry_tag.php?id='.$e->getId().'" class="btn btn-outline-secondary btn-sm mt-1">Catégoriser</a></div>';

@@ -135,16 +135,12 @@ class AccountingEntry {
 	public function getCommaSeparatedTags() {
 		return isset ( $this->tags ) ? $this->tags : NULL;
 	}
+	/**
+	 * @version 12/2023
+	 */
 	public function getHtmlTags() {
 		global $system;
-
-		if (isset ( $this->tags )) {
-			$output = '';
-			foreach ( $this->tags as $t ) {
-				$output .= '<a href="' . $system->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a> ';
-			}
-			return $output;
-		}
+		return $system->getHtmlTagList($this->tags);
 	}
 	public function isTagged() {
 		return isset($this->tags) && is_array($this->tags) && count($this->tags)>0;

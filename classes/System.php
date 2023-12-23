@@ -394,6 +394,20 @@ class System {
 		}
 	}
 	/**
+	 * @since 12/2023 
+	 * @param array $tags
+	 * @return string
+	 */
+	public function getHtmlTagList(array $tags) {
+		if (isset ( $tags )) {
+			$a = array();
+			foreach ( $tags as $t ) {
+				array_push ( $a, '<a href="' . $this->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a>');
+			}
+			return implode(' ',$a);
+		}
+	}
+	/**
 	 *
 	 * @since 08/2014
 	 * @version 07/2018
