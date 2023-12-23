@@ -26,7 +26,7 @@ $doc_title = 'Montants';
 			<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 			<?php
 			$amounts = $system->getAmounts ();
-			$nf = new NumberFormatter('fr_FR', NumberFormatter::CURRENCY);
+			$nf = new NumberFormatter(Locale::getDefault(), NumberFormatter::CURRENCY);
 			echo '<div class="list-group">';
 			foreach ( $amounts as $a ) {
 				echo '<a href="amount_edit.php?id=' . $a->getId() . '" class="list-group-item list-group-item-action">';

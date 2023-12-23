@@ -9,13 +9,16 @@ class System {
 	private $db_user;
 	private $db_password;
 	private $pdo;
+	private $date_formatter;
 	private $appli_name;
 	private $appli_description;
 	private $appli_url;
 	private $appli_theme_color;
 	private $appli_background_color;
 	private $dir_path;
+		
 	const TIMESCOPE = '2'; // le nombre d'années civiles à considérer dans les analyses, à partir de l'année courante.
+	
 	public function __construct($path) {
 		$this->config_file_path = $path;
 		if ($this->configFileExists ()) {
@@ -25,6 +28,7 @@ class System {
 				$this,
 				'loadClass'
 		) );
+		Locale::setDefault ( 'fr_FR' );
 	}
 	public function setDbHost($input) {
 		$this->db_host = $input;
@@ -394,17 +398,18 @@ class System {
 		}
 	}
 	/**
-	 * @since 12/2023 
+	 *
+	 * @since 12/2023
 	 * @param array $tags
 	 * @return string
 	 */
 	public function getHtmlTagList(array $tags) {
 		if (isset ( $tags )) {
-			$a = array();
+			$a = array ();
 			foreach ( $tags as $t ) {
-				array_push ( $a, '<a href="' . $this->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a>');
+				array_push ( $a, '<a href="' . $this->getAppliUrl () . '/admin/tag.php?label=' . urlencode ( $t ) . '"><span class="badge badge bg-light text-dark">' . ToolBox::toHtml ( $t ) . '</span></a>' );
 			}
-			return implode(' ',$a);
+			return implode ( ' ', $a );
 		}
 	}
 	/**
@@ -836,32 +841,27 @@ class System {
 			// ex. : PAIEMENT MOB 1211 FR SEPTEME SUMUP BISTRUCK CARTE 0564
 			// print_r($matches);
 			return '%' . $matches [3] . '%';
-		}
-		elseif (preg_match ( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
+		} elseif (preg_match ( '/PRLV SEPA ([ |[A-Z]+]*)/', $ae->getDescription (), $matches )) {
 			// Prélèvement SEPA
 			// ex. : PRLV SEPA FREE TELECOM FHD 995033022 FREE HAUTDEBIT 995033022
-			//print_r($matches);
+			// print_r($matches);
 			return '%' . $matches [1] . '%';
-		}
-		elseif (preg_match ( '/^(FRAIS PAIE CB OP)/', $ae->getDescription (), $matches )) {
+		} elseif (preg_match ( '/^(FRAIS PAIE CB OP)/', $ae->getDescription (), $matches )) {
 			// Frais opération bancaire
 			// ex. : FRAIS PAIE CB OP 14,99 EUR
-			//print_r($matches);
-			return $matches [1].'%';
-		}
-		elseif (preg_match ( '/^(LIVRET ASS)/', $ae->getDescription (), $matches )) {
+			// print_r($matches);
+			return $matches [1] . '%';
+		} elseif (preg_match ( '/^(LIVRET ASS)/', $ae->getDescription (), $matches )) {
 			// Livret Assurance Vie versement automatique
 			// ex. : LIVRET ASS OF9283449 2227799 OF9283449
-			//print_r($matches);
-			return $matches [1].'%';
-		}
-		elseif (preg_match ( '/^(RESTAURANT LYON) [0-9]{11}/', $ae->getDescription (), $matches )) {
+			// print_r($matches);
+			return $matches [1] . '%';
+		} elseif (preg_match ( '/^(RESTAURANT LYON) [0-9]{11}/', $ae->getDescription (), $matches )) {
 			// Restaurant d'entreprise
 			// ex. : RESTAURANT LYON 00120230801
-			//print_r($matches);
-			return $matches [1].'%';
-		}
-		else {
+			// print_r($matches);
+			return $matches [1] . '%';
+		} else {
 			return $ae->getDescription ();
 		}
 	}
@@ -999,7 +999,7 @@ class System {
 	 * @return string
 	 */
 	public function formatAmountToDisplay($amount) {
-		$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
+		$nf = new NumberFormatter ( Locale::getDefault(), NumberFormatter::CURRENCY );
 		return $nf->formatCurrency ( $amount, 'EUR' );
 	}
 	/**

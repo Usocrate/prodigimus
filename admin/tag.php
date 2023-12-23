@@ -58,7 +58,7 @@ $doc_title = ucfirst($_REQUEST ['label']);
 			echo '<table class="table">';
 			echo '<tr><th>Année</th><th>Jan.</th><th>Fév.</th><th>Mars.</th><th>Avr.</th><th>Mai</th><th>Juin</th><th>Juil.</th><th>Août</th><th>Sept.</th><th>Oct.</th><th>Nov.</th><th>Déc.</th></tr>';
 			
-			$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
+			$nf = new NumberFormatter (Locale::getDefault(), NumberFormatter::CURRENCY );
 			
 			foreach ($spendings as $year=>$months) {
 				echo '<tr>';

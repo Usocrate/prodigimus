@@ -25,7 +25,7 @@ $doc_title = 'Montants';
 		<h1 class="bd-title"><?php echo ToolBox::toHtml($doc_title); ?></h1>
 		<?php
 			$amounts = $system->getAmounts();
-			$nf = new NumberFormatter('fr_FR', NumberFormatter::CURRENCY);
+			$nf = new NumberFormatter(Locale::getDefault(), NumberFormatter::CURRENCY);
 			if (count($amounts)>0) {
 				echo '<ol>';
 				foreach($amounts as $a) {

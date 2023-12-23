@@ -71,7 +71,7 @@ class Amount {
 	public function getValueToDisplay(NumberFormatter $nf = NULL) {
 		if (isset($this->value)) {
 			if (is_null($nf)) {
-				$nf = New NumberFormatter('fr_FR', NumberFormatter::CURRENCY);
+				$nf = New NumberFormatter(Locale::getDefault(), NumberFormatter::CURRENCY);
 			}
 			return $nf->formatCurrency($this->value, 'EUR');
 		} else {

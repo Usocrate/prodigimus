@@ -43,7 +43,7 @@ $doc_title = 'Opération';
 
 		<header>
 			<div class="d-lg-flex flex-lg-row justify-content-between align-items-center mb-3 mt-3">
-				<h1><?php echo $accounting_entry->getHtmlDescription() ?> <small><?php echo $accounting_entry->getDateToDisplay() ?></small></h1>
+				<h1><?php echo $accounting_entry->getHtmlDescription() ?></h1>
 				<a class="btn btn-outline-secondary" href="accounting_entry_tag.php?id=<?php echo $accounting_entry->getId(); ?>">Catégoriser</a>
 			</div>
 			<p><a href="account.php?id=<?php echo $account->id ?>"><?php echo ToolBox::toHtml($account->getDescription()) ?></a></p>
@@ -59,13 +59,17 @@ $doc_title = 'Opération';
 		}
 
 		echo "<div>";
+	
 		echo '<p>';
+		
+		$df = new IntlDateFormatter(Locale::getDefault(),IntlDateFormatter::RELATIVE_MEDIUM, IntlDateFormatter::NONE);
+		
 		switch ($accounting_entry->getType ()) {
 			case 'spending' :
-				echo 'Une dépense de <strong>' . $accounting_entry->getAmountToDisplay () . '</strong>.';
+				echo 'Une dépense de <strong>' . $accounting_entry->getAmountToDisplay () . '</strong> enregistrée le '.$accounting_entry->getDateToDisplay($df).'.';
 				break;
 			case 'earning' :
-				echo 'Un revenu de <strong>' . $accounting_entry->getAmountToDisplay () . '</strong>.';
+				echo 'Un revenu de <strong>' . $accounting_entry->getAmountToDisplay () . '</strong> enregistré le '.$accounting_entry->getDateToDisplay($df).'.';
 				break;
 			default :
 				echo $accounting_entry->getAmountToDisplay ();
@@ -76,7 +80,7 @@ $doc_title = 'Opération';
 		$tags = $system->getAccountingEntryTags ( $accounting_entry ); 
 		
 		 if (count ( $tags ) > 0) {
-			 echo '<div>' . $system->getHtmlTagList($tags) . '</div>';
+			 echo '<div><p>' . $system->getHtmlTagList($tags) . '</p></div>';
 		 }
 	
 		$similarAccountingEntries = $system->getSimilarAccountingEntries ( $accounting_entry );

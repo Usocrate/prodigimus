@@ -63,15 +63,15 @@ class AccountingEntry {
 	/**
 	 *
 	 * @since 02/2021
+	 * @version 12/2023
 	 * @return string|NULL
 	 */
-	public function getDateToDisplay() {
+	public function getDateToDisplay(IntlDateFormatter $df = NULL) {
 		if (isset ( $this->date ) && is_a ( $this->date, 'DateTime' )) {
-			$now = new DateTime ();
-			if (strcmp ( $now->format ( 'Y' ), $this->date->format ( 'Y' ) ) == 0) {
-				return $this->date->format ( 'd M' );
+			if (isset($df)) {
+				return $df->format($this->date);	
 			} else {
-				return $this->date->format ( 'd M Y' );
+				return $this->date->format ( 'd' ) . ' ' . $this->getMonthToDisplay ();
 			}
 		}
 		return NULL;
@@ -160,7 +160,7 @@ class AccountingEntry {
 	public function getAmountToDisplay(NumberFormatter $nf = NULL) {
 		if (isset ( $this->amount )) {
 			if (is_null ( $nf )) {
-				$nf = new NumberFormatter ( 'fr_FR', NumberFormatter::CURRENCY );
+				$nf = new NumberFormatter ( Locale::getDefault(), NumberFormatter::CURRENCY );
 			}
 			return $nf->formatCurrency ( $this->amount, 'EUR' );
 		} else {
